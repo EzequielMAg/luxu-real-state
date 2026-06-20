@@ -1,0 +1,96 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import { Property } from "../data/properties";
+
+interface PropertyCardProps {
+  property: Property;
+  className?: string;
+}
+
+export default function PropertyCard({ property, className = "" }: PropertyCardProps) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const formattedPrice = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(property.price);
+
+  const isRent = property.action === "Rent";
+
+  return (
+    <article
+      className={`bg-white rounded-xl overflow-hidden shadow-card hover:shadow-soft transition-all duration-300 group cursor-pointer flex flex-col h-full ${className}`}
+    >
+      {/* Image Container */}
+      <div className="relative aspect-[4/3] overflow-hidden w-full">
+        <Image
+          alt={property.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          src={property.imageUrl}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+        />
+        
+        {/* Favorite Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsFavorite(!isFavorite);
+          }}
+          className="absolute top-3 right-3 z-10 p-2 bg-white/90 rounded-full hover:bg-mosque hover:text-white transition-all text-nordic-dark active:scale-90"
+        >
+          <span className="material-icons text-lg leading-none">
+            {isFavorite ? "favorite" : "favorite_border"}
+          </span>
+        </button>
+        
+        {/* Transaction Type Badge */}
+        <div
+          className={`absolute bottom-3 left-3 text-white text-[10px] font-bold px-2.5 py-1 rounded tracking-wider ${
+            isRent ? "bg-mosque/90" : "bg-nordic-dark/90"
+          }`}
+        >
+          {property.badge}
+        </div>
+      </div>
+
+      {/* Info Content */}
+      <div className="p-4 flex flex-col flex-grow">
+        {/* Price */}
+        <div className="flex justify-between items-baseline mb-2">
+          <h3 className="font-bold text-lg text-nordic-dark">
+            {formattedPrice}
+            {isRent && <span className="text-xs font-normal text-nordic-muted">/mo</span>}
+          </h3>
+        </div>
+
+        {/* Title */}
+        <h4 className="text-nordic-dark font-medium truncate mb-1 group-hover:text-mosque transition-colors duration-200">
+          {property.title}
+        </h4>
+
+        {/* Address */}
+        <p className="text-nordic-muted text-xs mb-4">{property.address}</p>
+
+        {/* Features */}
+        <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-1 text-nordic-muted text-xs">
+            <span className="material-icons text-sm text-mosque/80">king_bed</span>
+            {property.beds}
+          </div>
+          <div className="flex items-center gap-1 text-nordic-muted text-xs">
+            <span className="material-icons text-sm text-mosque/80">bathtub</span>
+            {property.baths}
+          </div>
+          <div className="flex items-center gap-1 text-nordic-muted text-xs">
+            <span className="material-icons text-sm text-mosque/80">square_foot</span>
+            {property.size}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}

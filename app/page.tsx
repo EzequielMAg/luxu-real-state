@@ -11,7 +11,7 @@ export default function Home() {
   const [category, setCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [actionFilter, setActionFilter] = useState<"All" | "Buy" | "Rent">("All");
-  const [showExtra, setShowExtra] = useState(false);
+  const [showExtra, setShowExtra] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Filter logic for Featured Collections

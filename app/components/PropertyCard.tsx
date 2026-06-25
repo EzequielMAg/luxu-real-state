@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Property } from "../types/property";
+import { togglePropertyFeatured } from "@/app/actions/properties";
 
 interface PropertyCardProps {
   property: Property;
@@ -10,7 +11,7 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property, className = "" }: PropertyCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -34,16 +35,26 @@ export default function PropertyCard({ property, className = "" }: PropertyCardP
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
         />
         
-        {/* Favorite Button */}
+        {/* Favorite Button (toggles featured status in DB) */}
         <button
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation();
-            setIsFavorite(!isFavorite);
+            if (isToggling) return;
+            setIsToggling(true);
+            try {
+              await togglePropertyFeatured(property.id, property.is_featured);
+            } catch (err) {
+              console.error("Failed to toggle featured status:", err);
+            } finally {
+              setIsToggling(false);
+            }
           }}
-          className="absolute top-3 right-3 z-10 p-2 bg-white/90 rounded-full hover:bg-mosque hover:text-white transition-all text-nordic-dark active:scale-90"
+          disabled={isToggling}
+          className="absolute top-3 right-3 z-10 p-2 bg-white/90 rounded-full hover:bg-mosque hover:text-white transition-all active:scale-90 shadow-md text-nordic-dark disabled:opacity-75"
+          title={property.is_featured ? "Remove from Featured" : "Add to Featured"}
         >
-          <span className="material-icons text-lg leading-none">
-            {isFavorite ? "favorite" : "favorite_border"}
+          <span className={`material-icons text-lg leading-none flex items-center justify-center ${isToggling ? "animate-spin" : property.is_featured ? "text-rose-500" : ""}`}>
+            {isToggling ? "sync" : property.is_featured ? "favorite" : "favorite_border"}
           </span>
         </button>
         

@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Property } from "../types/property";
+import { togglePropertyFeatured } from "@/app/actions/properties";
 
 interface FeaturedCardProps {
   property: Property;
 }
 
 export default function FeaturedCard({ property }: FeaturedCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -35,16 +36,26 @@ export default function FeaturedCard({ property }: FeaturedCardProps) {
           {property.badge}
         </div>
         
-        {/* Favorite Button */}
+        {/* Favorite Button (toggles featured status in DB) */}
         <button
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation();
-            setIsFavorite(!isFavorite);
+            if (isToggling) return;
+            setIsToggling(true);
+            try {
+              await togglePropertyFeatured(property.id, property.is_featured);
+            } catch (err) {
+              console.error("Failed to toggle featured status:", err);
+            } finally {
+              setIsToggling(false);
+            }
           }}
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-nordic-dark hover:bg-mosque hover:text-white transition-all shadow-md active:scale-95"
+          disabled={isToggling}
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center transition-all shadow-md active:scale-95 text-nordic-dark hover:bg-mosque hover:text-white disabled:opacity-75"
+          title="Remove from Featured"
         >
-          <span className="material-icons text-xl">
-            {isFavorite ? "favorite" : "favorite_border"}
+          <span className={`material-icons text-xl flex items-center justify-center ${isToggling ? "animate-spin" : "text-rose-500"}`}>
+            {isToggling ? "sync" : "favorite"}
           </span>
         </button>
         

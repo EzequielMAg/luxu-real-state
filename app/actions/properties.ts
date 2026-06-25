@@ -1,7 +1,10 @@
+"use server";
+
 import { supabase } from "@/lib/supabase";
 import { Property, PropertyAction, PropertyType } from "@/app/types/property";
+import { revalidatePath } from "next/cache";
 
-export const PROPERTIES_PER_PAGE = 8;
+const PROPERTIES_PER_PAGE = 8;
 
 interface GetPropertiesParams {
   page?: number;
@@ -85,4 +88,26 @@ export async function getFeaturedProperties(): Promise<Property[]> {
   }
 
   return (data as Property[]) ?? [];
+}
+
+/**
+ * Server Action to toggle the 'is_featured' status of a property.
+ */
+export async function togglePropertyFeatured(
+  propertyId: string,
+  currentFeaturedStatus: boolean
+): Promise<{ success: boolean; error?: string }> {
+  const { error } = await supabase
+    .from("properties")
+    .update({ is_featured: !currentFeaturedStatus })
+    .eq("id", propertyId);
+
+  if (error) {
+    console.error("Error toggling featured status:", error);
+    return { success: false, error: error.message };
+  }
+
+  // Revalidate the home page so lists are updated immediately
+  revalidatePath("/");
+  return { success: true };
 }

@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PropertyPageProps): Promise<M
       description: `Modern luxury real estate at ${property.address}.`,
       images: [
         {
-          url: property.image_url,
+          url: property.images[0],
           width: 1200,
           height: 630,
           alt: property.title,
@@ -66,7 +66,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
     "@type": "RealEstateListing",
     name: property.title,
     description: `Modern luxury ${property.type.toLowerCase()} located at ${property.address}.`,
-    image: property.images && property.images.length > 0 ? property.images : [property.image_url],
+    image: property.images,
     offers: {
       "@type": "Offer",
       price: property.price,
@@ -94,7 +94,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
           {/* Left Column: Image Collection Gallery (col-span-8) */}
           <PropertyGallery
-            images={property.images || [property.image_url]}
+            images={property.images}
             title={property.title}
             badge={property.badge}
             action={property.action}

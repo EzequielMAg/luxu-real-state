@@ -111,3 +111,21 @@ export async function togglePropertyFeatured(
   revalidatePath("/");
   return { success: true };
 }
+
+/**
+ * Server-side function to fetch a single property by slug from Supabase.
+ */
+export async function getPropertyBySlug(slug: string): Promise<Property | null> {
+  const { data, error } = await supabase
+    .from("properties")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error(`Error fetching property with slug "${slug}":`, error);
+    return null;
+  }
+
+  return (data as Property) ?? null;
+}

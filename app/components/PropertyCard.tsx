@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Property } from "../types/property";
 import { togglePropertyFeatured } from "@/app/actions/properties";
 
@@ -23,9 +24,10 @@ export default function PropertyCard({ property, className = "", priority = fals
   const isRent = property.action === "Rent";
 
   return (
-    <article
-      className={`bg-card-bg rounded-xl overflow-hidden shadow-card hover:shadow-soft transition-all duration-300 group cursor-pointer flex flex-col h-full ${className}`}
-    >
+    <Link href={`/propiedades/${property.slug}`} className="block h-full">
+      <article
+        className={`bg-card-bg rounded-xl overflow-hidden shadow-card hover:shadow-soft transition-all duration-300 group cursor-pointer flex flex-col h-full ${className}`}
+      >
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden w-full">
         <Image
@@ -104,6 +106,7 @@ export default function PropertyCard({ property, className = "", priority = fals
           </div>
         </div>
       </div>
-    </article>
+      </article>
+    </Link>
   );
 }

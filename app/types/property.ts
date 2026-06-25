@@ -1,5 +1,6 @@
 export interface Property {
   id: string;
+  slug: string;
   title: string;
   address: string;
   price: number;
@@ -7,6 +8,9 @@ export interface Property {
   baths: number;
   size: string;
   image_url: string;
+  images: string[];
+  lat: number;
+  lng: number;
   badge: string;
   type: "House" | "Apartment" | "Villa" | "Penthouse";
   action: "Buy" | "Rent";

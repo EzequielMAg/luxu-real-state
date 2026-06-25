@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Property } from "../types/property";
 import { togglePropertyFeatured } from "@/app/actions/properties";
 
@@ -19,7 +20,8 @@ export default function FeaturedCard({ property }: FeaturedCardProps) {
   }).format(property.price);
 
   return (
-    <div className="group relative rounded-xl overflow-hidden shadow-soft bg-card-bg cursor-pointer transition-all duration-300">
+    <Link href={`/propiedades/${property.slug}`} className="block h-full">
+      <div className="group relative rounded-xl overflow-hidden shadow-soft bg-card-bg cursor-pointer transition-all duration-300 h-full flex flex-col">
       {/* Image Container */}
       <div className="aspect-[4/3] w-full overflow-hidden relative">
         <Image
@@ -97,6 +99,7 @@ export default function FeaturedCard({ property }: FeaturedCardProps) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </Link>
   );
 }

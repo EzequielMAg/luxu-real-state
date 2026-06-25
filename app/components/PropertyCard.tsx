@@ -42,6 +42,7 @@ export default function PropertyCard({ property, className = "", priority = fals
         {/* Favorite Button (toggles featured status in DB) */}
         <button
           onClick={async (e) => {
+            e.preventDefault();
             e.stopPropagation();
             if (isToggling) return;
             setIsToggling(true);

@@ -41,6 +41,7 @@ export default function FeaturedCard({ property }: FeaturedCardProps) {
         {/* Favorite Button (toggles featured status in DB) */}
         <button
           onClick={async (e) => {
+            e.preventDefault();
             e.stopPropagation();
             if (isToggling) return;
             setIsToggling(true);

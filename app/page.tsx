@@ -74,7 +74,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               ))}
             </div>
           ) : (
-            <div className="py-12 text-center bg-white rounded-xl border border-dashed border-nordic-dark/10">
+            <div className="py-12 text-center bg-card-bg rounded-xl border border-dashed border-nordic-dark/10">
               <span className="material-icons text-4xl text-nordic-muted mb-2">
                 find_in_page
               </span>
@@ -114,7 +114,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               ))}
             </div>
           ) : (
-            <div className="py-16 text-center bg-white rounded-xl border border-dashed border-nordic-dark/10">
+            <div className="py-16 text-center bg-card-bg rounded-xl border border-dashed border-nordic-dark/10">
               <span className="material-icons text-4xl text-nordic-muted mb-2">
                 search_off
               </span>

@@ -58,7 +58,7 @@ export default function PaginationControls({
         <button
           onClick={() => navigate(page - 1)}
           disabled={!hasPrev || isPending}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark text-sm font-medium rounded-lg transition-all hover:shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark text-sm font-medium rounded-lg transition-all hover:shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
         >
           <span className="material-icons text-base">arrow_back</span>
           Previous
@@ -97,7 +97,7 @@ export default function PaginationControls({
                   className={`w-9 h-9 rounded-lg text-sm font-medium transition-all active:scale-95 ${
                     item === page
                       ? "bg-mosque text-white shadow-sm"
-                      : "bg-white border border-nordic-dark/10 text-nordic-dark hover:border-mosque hover:text-mosque hover:shadow-sm"
+                      : "bg-card-bg border border-nordic-dark/10 text-nordic-dark hover:border-mosque hover:text-mosque hover:shadow-sm"
                   }`}
                 >
                   {item}
@@ -110,7 +110,7 @@ export default function PaginationControls({
         <button
           onClick={() => navigate(page + 1)}
           disabled={!hasNext || isPending}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark text-sm font-medium rounded-lg transition-all hover:shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark text-sm font-medium rounded-lg transition-all hover:shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
         >
           Next
           <span className="material-icons text-base">arrow_forward</span>

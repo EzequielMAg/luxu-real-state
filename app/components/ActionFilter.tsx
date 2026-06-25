@@ -36,7 +36,7 @@ export default function ActionFilterClient({
 
   return (
     <div
-      className={`hidden md:flex bg-white p-1 rounded-lg border border-nordic-dark/5 transition-opacity ${
+      className={`hidden md:flex bg-card-bg p-1 rounded-lg border border-nordic-dark/5 transition-opacity ${
         isPending ? "opacity-60" : "opacity-100"
       }`}
     >

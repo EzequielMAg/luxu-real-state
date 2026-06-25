@@ -19,7 +19,7 @@ export default function FeaturedCard({ property }: FeaturedCardProps) {
   }).format(property.price);
 
   return (
-    <div className="group relative rounded-xl overflow-hidden shadow-soft bg-white cursor-pointer transition-all duration-300">
+    <div className="group relative rounded-xl overflow-hidden shadow-soft bg-card-bg cursor-pointer transition-all duration-300">
       {/* Image Container */}
       <div className="aspect-[4/3] w-full overflow-hidden relative">
         <Image
@@ -32,7 +32,7 @@ export default function FeaturedCard({ property }: FeaturedCardProps) {
         />
         
         {/* Badges */}
-        <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-nordic-dark">
+        <div className="absolute top-4 left-4 z-10 bg-card-bg/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-nordic-dark">
           {property.badge}
         </div>
         
@@ -51,7 +51,7 @@ export default function FeaturedCard({ property }: FeaturedCardProps) {
             }
           }}
           disabled={isToggling}
-          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center transition-all shadow-md active:scale-95 text-nordic-dark hover:bg-mosque hover:text-white disabled:opacity-75"
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-card-bg/90 backdrop-blur-sm flex items-center justify-center transition-all shadow-md active:scale-95 text-nordic-dark hover:bg-mosque hover:text-white disabled:opacity-75"
           title="Remove from Featured"
         >
           <span className={`material-icons text-xl flex items-center justify-center ${isToggling ? "animate-spin" : "text-rose-500"}`}>

@@ -24,7 +24,7 @@ export default function PropertyCard({ property, className = "", priority = fals
 
   return (
     <article
-      className={`bg-white rounded-xl overflow-hidden shadow-card hover:shadow-soft transition-all duration-300 group cursor-pointer flex flex-col h-full ${className}`}
+      className={`bg-card-bg rounded-xl overflow-hidden shadow-card hover:shadow-soft transition-all duration-300 group cursor-pointer flex flex-col h-full ${className}`}
     >
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden w-full">
@@ -52,7 +52,7 @@ export default function PropertyCard({ property, className = "", priority = fals
             }
           }}
           disabled={isToggling}
-          className="absolute top-3 right-3 z-10 p-2 bg-white/90 rounded-full hover:bg-mosque hover:text-white transition-all active:scale-90 shadow-md text-nordic-dark disabled:opacity-75"
+          className="absolute top-3 right-3 z-10 p-2 bg-card-bg/90 rounded-full hover:bg-mosque hover:text-white transition-all active:scale-90 shadow-md text-nordic-dark disabled:opacity-75"
           title={property.is_featured ? "Remove from Featured" : "Add to Featured"}
         >
           <span className={`material-icons text-lg leading-none flex items-center justify-center ${isToggling ? "animate-spin" : property.is_featured ? "text-rose-500" : ""}`}>
@@ -89,7 +89,7 @@ export default function PropertyCard({ property, className = "", priority = fals
         <p className="text-nordic-muted text-xs mb-4">{property.address}</p>
 
         {/* Features */}
-        <div className="mt-auto flex items-center justify-between pt-3 border-t border-gray-100">
+        <div className="mt-auto flex items-center justify-between pt-3 border-t border-nordic-dark/10">
           <div className="flex items-center gap-1 text-nordic-muted text-xs">
             <span className="material-icons text-sm text-mosque/80">king_bed</span>
             {property.beds}

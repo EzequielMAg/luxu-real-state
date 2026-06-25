@@ -1,10 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  // Al montar, leemos la preferencia del localStorage o del sistema
+  useEffect(() => {
+    setMounted(true);
+    const localTheme = localStorage.getItem("theme");
+    const isDark =
+      localTheme === "dark" ||
+      (!localTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    setTheme(isDark ? "dark" : "light");
+  }, []);
+
+  // Sincronizamos la clase "dark" en el html y body cada vez que el tema cambia
+  useEffect(() => {
+    if (!mounted) return;
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.body.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.body.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [theme, mounted]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-background-light/95 backdrop-blur-md border-b border-nordic-dark/10">
@@ -52,10 +82,27 @@ export default function Navbar() {
               <span className="material-icons">notifications_none</span>
               <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-background-light"></span>
             </button>
+
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="text-nordic-dark hover:text-mosque transition-colors flex items-center justify-center p-1.5 rounded-lg hover:bg-nordic-dark/5 transition-all active:scale-90"
+              title="Toggle theme"
+            >
+              {mounted ? (
+                theme === "dark" ? (
+                  <span className="material-icons">light_mode</span>
+                ) : (
+                  <span className="material-icons">dark_mode</span>
+                )
+              ) : (
+                <span className="material-icons opacity-0">dark_mode</span>
+              )}
+            </button>
             
             {/* Profile */}
             <button className="flex items-center gap-2 pl-2 border-l border-nordic-dark/10 ml-2">
-              <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden ring-2 ring-transparent hover:ring-mosque transition-all relative">
+              <div className="w-9 h-9 rounded-full bg-nordic-dark/10 overflow-hidden ring-2 ring-transparent hover:ring-mosque transition-all relative">
                 <Image
                   alt="Profile"
                   className="w-full h-full object-cover"
@@ -88,19 +135,19 @@ export default function Navbar() {
             Buy
           </a>
           <a
-            className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-black/5"
+            className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-nordic-dark/5"
             href="#"
           >
             Rent
           </a>
           <a
-            className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-black/5"
+            className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-nordic-dark/5"
             href="#"
           >
             Sell
           </a>
           <a
-            className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-black/5"
+            className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-nordic-dark/5"
             href="#"
           >
             Saved Homes

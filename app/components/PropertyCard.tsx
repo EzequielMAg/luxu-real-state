@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Property } from "../data/properties";
+import { Property } from "../types/property";
 
 interface PropertyCardProps {
   property: Property;
@@ -29,7 +29,7 @@ export default function PropertyCard({ property, className = "" }: PropertyCardP
         <Image
           alt={property.title}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-          src={property.imageUrl}
+          src={property.image_url}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
         />

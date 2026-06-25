@@ -8,9 +8,10 @@ import { togglePropertyFeatured } from "@/app/actions/properties";
 interface PropertyCardProps {
   property: Property;
   className?: string;
+  priority?: boolean;
 }
 
-export default function PropertyCard({ property, className = "" }: PropertyCardProps) {
+export default function PropertyCard({ property, className = "", priority = false }: PropertyCardProps) {
   const [isToggling, setIsToggling] = useState(false);
 
   const formattedPrice = new Intl.NumberFormat("en-US", {
@@ -32,6 +33,7 @@ export default function PropertyCard({ property, className = "" }: PropertyCardP
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           src={property.image_url}
           fill
+          priority={priority}
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
         />
         

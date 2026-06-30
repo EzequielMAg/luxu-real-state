@@ -120,7 +120,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
         {/* New in Market Section */}
         <section>
-          <div className="flex items-end justify-between mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h2 className="text-2xl font-light text-nordic-dark">
                 New in Market
@@ -130,23 +130,26 @@ export default async function Home({ searchParams }: HomePageProps) {
               </p>
             </div>
 
-            {/* Transaction Type Filters (All, Buy, Rent) — URL-based Client Component */}
-            <Suspense fallback={null}>
-              <ActionFilterClient currentAction={action} />
-            </Suspense>
-          </div>
+            {/* Top Pagination Controls (Compact & Centered) */}
+            {properties.length > 0 && (
+              <Suspense fallback={null}>
+                <PaginationControls
+                  page={page}
+                  totalPages={totalPages}
+                  total={total}
+                  compact={true}
+                  className="md:mx-auto"
+                />
+              </Suspense>
+            )}
 
-          {/* Top Pagination Controls */}
-          {properties.length > 0 && (
-            <Suspense fallback={null}>
-              <PaginationControls
-                page={page}
-                totalPages={totalPages}
-                total={total}
-                className="mb-8"
-              />
-            </Suspense>
-          )}
+            {/* Transaction Type Filters (All, Buy, Rent) — URL-based Client Component */}
+            <div className="flex justify-end">
+              <Suspense fallback={null}>
+                <ActionFilterClient currentAction={action} />
+              </Suspense>
+            </div>
+          </div>
 
           {properties.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

@@ -28,7 +28,7 @@ export default function ActionFilterClient({
       // Reset to page 1 on filter change
       params.delete("page");
       startTransition(() => {
-        router.push(`${pathname}?${params.toString()}`);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
       });
     },
     [searchParams, pathname, router]

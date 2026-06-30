@@ -8,6 +8,7 @@ interface PaginationControlsProps {
   totalPages: number;
   total: number;
   className?: string;
+  compact?: boolean;
 }
 
 export default function PaginationControls({
@@ -15,6 +16,7 @@ export default function PaginationControls({
   totalPages,
   total,
   className = "mt-12",
+  compact = false,
 }: PaginationControlsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,7 +33,7 @@ export default function PaginationControls({
       const params = new URLSearchParams(searchParams.toString());
       params.set("page", String(newPage));
       startTransition(() => {
-        router.push(`${pathname}?${params.toString()}`);
+        router.push(`${pathname}?${params.toString()}`, { scroll: false });
       });
     },
     [searchParams, pathname, router]
@@ -41,6 +43,89 @@ export default function PaginationControls({
 
   const hasPrev = page > 1;
   const hasNext = page < totalPages;
+
+  if (compact) {
+    return (
+      <div className={`flex items-center gap-4 ${className}`}>
+        {/* Page info */}
+        <p className="text-xs text-nordic-muted hidden xl:inline-block">
+          Page <span className="font-medium text-nordic-dark">{page}</span> of{" "}
+          <span className="font-medium text-nordic-dark">{totalPages}</span>
+          {" · "}
+          <span className="font-medium text-nordic-dark">{total}</span> properties
+        </p>
+        
+        {/* Page info fallback for smaller screens */}
+        <p className="text-xs text-nordic-muted xl:hidden">
+          {page}/{totalPages}
+        </p>
+
+        {/* Controls */}
+        <div className={`flex items-center gap-2 transition-opacity ${isPending ? "opacity-60" : "opacity-100"}`}>
+          {/* Previous */}
+          <button
+            onClick={() => navigate(page - 1)}
+            disabled={!hasPrev || isPending}
+            className="inline-flex items-center justify-center w-8 h-8 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark rounded-md transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+            title="Previous Page"
+          >
+            <span className="material-icons text-base">chevron_left</span>
+          </button>
+
+          {/* Page numbers */}
+          <div className="flex items-center gap-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((p) => {
+                return (
+                  p === 1 ||
+                  p === totalPages ||
+                  Math.abs(p - page) <= 1
+                );
+              })
+              .reduce<(number | "...")[]>((acc, p, idx, arr) => {
+                if (idx > 0 && p - (arr[idx - 1] as number) > 1) {
+                  acc.push("...");
+                }
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((item, idx) =>
+                item === "..." ? (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="px-1 text-nordic-muted text-xs"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={item}
+                    onClick={() => navigate(item as number)}
+                    className={`w-7 h-7 rounded-md text-xs font-medium transition-all active:scale-95 cursor-pointer ${
+                      item === page
+                        ? "bg-mosque text-white shadow-sm"
+                        : "bg-card-bg border border-nordic-dark/10 text-nordic-dark hover:border-mosque hover:text-mosque"
+                    }`}
+                  >
+                    {item}
+                  </button>
+                )
+              )}
+          </div>
+
+          {/* Next */}
+          <button
+            onClick={() => navigate(page + 1)}
+            disabled={!hasNext || isPending}
+            className="inline-flex items-center justify-center w-8 h-8 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark rounded-md transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+            title="Next Page"
+          >
+            <span className="material-icons text-base">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex flex-col items-center gap-4 ${className}`}>

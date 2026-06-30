@@ -45,7 +45,6 @@ export async function getProperties({
   let query = supabase
     .from("properties")
     .select("*", { count: "exact" })
-    .eq("is_featured", false)
     .order("created_at", { ascending: false });
 
   if (type && type !== "All") {

@@ -6,7 +6,7 @@ import PropertyCard from "./components/PropertyCard";
 import PaginationControls from "./components/PaginationControls";
 import ActionFilterClient from "./components/ActionFilter";
 import { getProperties, getFeaturedProperties } from "./actions/properties";
-import { PropertyType, PropertyAction } from "./types/property";
+import { Property, PropertyType, PropertyAction } from "./types/property";
 
 // Force dynamic rendering so the page always re-fetches on every request.
 // Without this, Next.js caches the server output and ignores URL query changes
@@ -41,10 +41,20 @@ export default async function Home({ searchParams }: HomePageProps) {
   const baths = params.baths ? parseFloat(params.baths) : undefined;
   const amenities = params.amenities ? params.amenities.split(",") : undefined;
 
+  const isFilterOrSearchApplied =
+    type !== "All" ||
+    action !== "All" ||
+    search !== "" ||
+    minPrice !== undefined ||
+    maxPrice !== undefined ||
+    beds !== undefined ||
+    baths !== undefined ||
+    (amenities !== undefined && amenities.length > 0);
+
   // Fetch data server-side in parallel
   const [featuredProperties, { properties, total, totalPages }] =
     await Promise.all([
-      getFeaturedProperties(),
+      isFilterOrSearchApplied ? Promise.resolve([] as Property[]) : getFeaturedProperties(),
       getProperties({
         page,
         type,
@@ -69,42 +79,44 @@ export default async function Home({ searchParams }: HomePageProps) {
         </Suspense>
 
         {/* Featured Collections Section */}
-        <section className="mb-16">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-light text-nordic-dark">
-                Featured Collections
-              </h2>
-              <p className="text-nordic-muted mt-1 text-sm">
-                Curated properties for the discerning eye.
-              </p>
+        {!isFilterOrSearchApplied && (
+          <section className="mb-16">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-light text-nordic-dark">
+                  Featured Collections
+                </h2>
+                <p className="text-nordic-muted mt-1 text-sm">
+                  Curated properties for the discerning eye.
+                </p>
+              </div>
+              <a
+                className="hidden sm:flex items-center gap-1 text-sm font-medium text-mosque hover:opacity-70 transition-opacity"
+                href="#"
+              >
+                View all{" "}
+                <span className="material-icons text-sm">arrow_forward</span>
+              </a>
             </div>
-            <a
-              className="hidden sm:flex items-center gap-1 text-sm font-medium text-mosque hover:opacity-70 transition-opacity"
-              href="#"
-            >
-              View all{" "}
-              <span className="material-icons text-sm">arrow_forward</span>
-            </a>
-          </div>
 
-          {featuredProperties.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {featuredProperties.map((property) => (
-                <FeaturedCard key={property.id} property={property} />
-              ))}
-            </div>
-          ) : (
-            <div className="py-12 text-center bg-card-bg rounded-xl border border-dashed border-nordic-dark/10">
-              <span className="material-icons text-4xl text-nordic-muted mb-2">
-                find_in_page
-              </span>
-              <p className="text-nordic-muted">
-                No featured properties found.
-              </p>
-            </div>
-          )}
-        </section>
+            {featuredProperties.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {featuredProperties.slice(0, 2).map((property) => (
+                  <FeaturedCard key={property.id} property={property} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-12 text-center bg-card-bg rounded-xl border border-dashed border-nordic-dark/10">
+                <span className="material-icons text-4xl text-nordic-muted mb-2">
+                  find_in_page
+                </span>
+                <p className="text-nordic-muted">
+                  No featured properties found.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* New in Market Section */}
         <section>

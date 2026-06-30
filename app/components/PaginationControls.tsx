@@ -7,12 +7,14 @@ interface PaginationControlsProps {
   page: number;
   totalPages: number;
   total: number;
+  className?: string;
 }
 
 export default function PaginationControls({
   page: initialPage,
   totalPages,
   total,
+  className = "mt-12",
 }: PaginationControlsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -41,7 +43,7 @@ export default function PaginationControls({
   const hasNext = page < totalPages;
 
   return (
-    <div className="mt-12 flex flex-col items-center gap-4">
+    <div className={`flex flex-col items-center gap-4 ${className}`}>
       {/* Page info */}
       <p className="text-sm text-nordic-muted">
         Page{" "}

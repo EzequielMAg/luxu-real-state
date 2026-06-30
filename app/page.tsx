@@ -136,6 +136,18 @@ export default async function Home({ searchParams }: HomePageProps) {
             </Suspense>
           </div>
 
+          {/* Top Pagination Controls */}
+          {properties.length > 0 && (
+            <Suspense fallback={null}>
+              <PaginationControls
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                className="mb-8"
+              />
+            </Suspense>
+          )}
+
           {properties.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {properties.map((property, index) => (

@@ -19,6 +19,11 @@ interface HomePageProps {
     type?: string;
     action?: string;
     search?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    beds?: string;
+    baths?: string;
+    amenities?: string;
   }>;
 }
 
@@ -30,11 +35,27 @@ export default async function Home({ searchParams }: HomePageProps) {
   const action = (params.action as PropertyAction | undefined) ?? "All";
   const search = params.search ?? "";
 
+  const minPrice = params.minPrice ? parseFloat(params.minPrice) : undefined;
+  const maxPrice = params.maxPrice ? parseFloat(params.maxPrice) : undefined;
+  const beds = params.beds ? parseInt(params.beds, 10) : undefined;
+  const baths = params.baths ? parseFloat(params.baths) : undefined;
+  const amenities = params.amenities ? params.amenities.split(",") : undefined;
+
   // Fetch data server-side in parallel
   const [featuredProperties, { properties, total, totalPages }] =
     await Promise.all([
       getFeaturedProperties(),
-      getProperties({ page, type, action, search }),
+      getProperties({
+        page,
+        type,
+        action,
+        search,
+        minPrice,
+        maxPrice,
+        beds,
+        baths,
+        amenities,
+      }),
     ]);
 
   return (

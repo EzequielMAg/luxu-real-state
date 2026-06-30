@@ -11,6 +11,11 @@ interface GetPropertiesParams {
   type?: PropertyType | "All";
   action?: PropertyAction | "All";
   search?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  beds?: number;
+  baths?: number;
+  amenities?: string[];
 }
 
 interface GetPropertiesResult {
@@ -28,6 +33,11 @@ export async function getProperties({
   type = "All",
   action = "All",
   search = "",
+  minPrice,
+  maxPrice,
+  beds,
+  baths,
+  amenities,
 }: GetPropertiesParams = {}): Promise<GetPropertiesResult> {
   const from = (page - 1) * PROPERTIES_PER_PAGE;
   const to = from + PROPERTIES_PER_PAGE - 1;
@@ -50,6 +60,26 @@ export async function getProperties({
     query = query.or(
       `title.ilike.%${search}%,address.ilike.%${search}%`
     );
+  }
+
+  if (minPrice !== undefined && !isNaN(minPrice)) {
+    query = query.gte("price", minPrice);
+  }
+
+  if (maxPrice !== undefined && !isNaN(maxPrice)) {
+    query = query.lte("price", maxPrice);
+  }
+
+  if (beds !== undefined && !isNaN(beds) && beds > 0) {
+    query = query.gte("beds", beds);
+  }
+
+  if (baths !== undefined && !isNaN(baths) && baths > 0) {
+    query = query.gte("baths", baths);
+  }
+
+  if (amenities && amenities.length > 0) {
+    query = query.contains("amenities", amenities);
   }
 
   query = query.range(from, to);

@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useTransition } from "react";
+import { useCallback, useTransition, useState } from "react";
+import FilterModal from "./FilterModal";
 
 const CATEGORIES = ["All", "House", "Apartment", "Villa", "Penthouse"];
 
@@ -10,6 +11,7 @@ export default function Hero() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const selectedCategory = searchParams.get("type") ?? "All";
   const searchQuery = searchParams.get("search") ?? "";
@@ -36,6 +38,58 @@ export default function Hero() {
     const formData = new FormData(e.currentTarget);
     const query = (formData.get("search") as string) ?? "";
     updateParam("search", query);
+  };
+
+  const handleApplyFilters = (newFilters: {
+    search?: string;
+    type?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    beds?: string;
+    baths?: string;
+    amenities?: string[];
+  }) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    // Helper to update parameter
+    const update = (key: string, value?: string) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    };
+
+    update("search", newFilters.search);
+    update("type", newFilters.type);
+    update("minPrice", newFilters.minPrice);
+    update("maxPrice", newFilters.maxPrice);
+    update("beds", newFilters.beds);
+    update("baths", newFilters.baths);
+
+    if (newFilters.amenities && newFilters.amenities.length > 0) {
+      params.set("amenities", newFilters.amenities.join(","));
+    } else {
+      params.delete("amenities");
+    }
+
+    params.delete("page");
+
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
+
+  // Build initial filters state for the modal
+  const amenitiesParam = searchParams.get("amenities");
+  const initialFilters = {
+    search: searchQuery,
+    type: selectedCategory === "All" ? undefined : selectedCategory,
+    minPrice: searchParams.get("minPrice") ?? undefined,
+    maxPrice: searchParams.get("maxPrice") ?? undefined,
+    beds: searchParams.get("beds") ?? undefined,
+    baths: searchParams.get("baths") ?? undefined,
+    amenities: amenitiesParam ? amenitiesParam.split(",") : undefined,
   };
 
   return (
@@ -75,7 +129,7 @@ export default function Hero() {
           />
           <button
             type="submit"
-            className="absolute inset-y-2 right-2 px-6 bg-mosque hover:bg-mosque/90 text-white font-medium rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-mosque/20"
+            className="absolute inset-y-2 right-2 px-6 bg-mosque hover:bg-mosque/90 text-white font-medium rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-mosque/20 cursor-pointer"
           >
             Search
           </button>
@@ -89,7 +143,7 @@ export default function Hero() {
               <button
                 key={category}
                 onClick={() => updateParam("type", category)}
-                className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer ${
                   isActive
                     ? "bg-mosque text-white shadow-lg shadow-mosque/10 hover:-translate-y-0.5"
                     : "bg-card-bg border border-nordic-dark/5 text-nordic-muted hover:text-nordic-dark hover:border-mosque/50 hover:bg-mosque/5"
@@ -102,11 +156,22 @@ export default function Hero() {
 
           <div className="w-px h-6 bg-nordic-dark/10 mx-2"></div>
 
-          <button className="whitespace-nowrap flex items-center gap-1 px-4 py-2 rounded-full text-nordic-dark font-medium text-sm hover:bg-nordic-dark/5 transition-colors">
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="whitespace-nowrap flex items-center gap-1 px-4 py-2 rounded-full text-nordic-dark font-medium text-sm hover:bg-nordic-dark/5 transition-colors cursor-pointer"
+          >
             <span className="material-icons text-base">tune</span> Filters
           </button>
         </div>
       </div>
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        initialFilters={initialFilters}
+        onApply={handleApplyFilters}
+      />
     </section>
   );
 }

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import FeaturedCard from "./components/FeaturedCard";
@@ -7,6 +8,7 @@ import PaginationControls from "./components/PaginationControls";
 import ActionFilterClient from "./components/ActionFilter";
 import { getProperties, getFeaturedProperties } from "./actions/properties";
 import { Property, PropertyType, PropertyAction } from "./types/property";
+import { dictionaries, Locale } from "./dictionaries";
 
 // Force dynamic rendering so the page always re-fetches on every request.
 // Without this, Next.js caches the server output and ignores URL query changes
@@ -28,6 +30,11 @@ interface HomePageProps {
 }
 
 export default async function Home({ searchParams }: HomePageProps) {
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get("NEXT_LOCALE")?.value as Locale | undefined;
+  const locale: Locale = localeCookie && dictionaries[localeCookie] ? localeCookie : "es";
+  const t = dictionaries[locale];
+
   const params = await searchParams;
 
   const page = Math.max(1, parseInt(params.page ?? "1", 10));
@@ -84,17 +91,17 @@ export default async function Home({ searchParams }: HomePageProps) {
             <div className="flex items-end justify-between mb-8">
               <div>
                 <h2 className="text-2xl font-light text-nordic-dark">
-                  Featured Collections
+                  {t.properties.featuredTitle}
                 </h2>
                 <p className="text-nordic-muted mt-1 text-sm">
-                  Curated properties for the discerning eye.
+                  {t.properties.featuredSubtitle}
                 </p>
               </div>
               <a
                 className="hidden sm:flex items-center gap-1 text-sm font-medium text-mosque hover:opacity-70 transition-opacity"
                 href="#"
               >
-                View all{" "}
+                {t.properties.viewAll}{" "}
                 <span className="material-icons text-sm">arrow_forward</span>
               </a>
             </div>
@@ -111,7 +118,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                   find_in_page
                 </span>
                 <p className="text-nordic-muted">
-                  No featured properties found.
+                  {t.properties.noFeatured}
                 </p>
               </div>
             )}
@@ -123,10 +130,10 @@ export default async function Home({ searchParams }: HomePageProps) {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h2 className="text-2xl font-light text-nordic-dark">
-                New in Market
+                {t.properties.availableTitle}
               </h2>
               <p className="text-nordic-muted mt-1 text-sm">
-                Fresh opportunities added this week.
+                {t.properties.availableSubtitle}
               </p>
             </div>
 
@@ -167,7 +174,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                 search_off
               </span>
               <p className="text-nordic-muted">
-                No properties found matching your criteria.
+                {t.properties.noResultsTitle}
               </p>
             </div>
           )}

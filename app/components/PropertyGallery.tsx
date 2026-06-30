@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useTranslation } from "../i18n/I18nProvider";
 
 interface PropertyGalleryProps {
   images: string[];
@@ -16,11 +17,17 @@ export default function PropertyGallery({
   badge,
   action,
 }: PropertyGalleryProps) {
+  const { t } = useTranslation();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   // Ensure we always have at least one image
   const validImages = images && images.length > 0 ? images : ["/placeholder.jpg"];
   const currentImage = validImages[selectedIndex] || validImages[0];
+
+  const actionLabel = action === "Buy" ? t.hero.tabSale : action === "Rent" ? t.hero.tabRent : action;
+  const viewPhotosLabel = (t.properties as Record<string, string>).viewAllPhotos
+    ? (t.properties as Record<string, string>).viewAllPhotos.replace("{count}", String(validImages.length))
+    : `View All Photos (${validImages.length})`;
 
   return (
     <div className="lg:col-span-8 space-y-4">
@@ -38,7 +45,7 @@ export default function PropertyGallery({
         {/* Badges */}
         <div className="absolute top-4 left-4 flex gap-2 z-10">
           <span className="bg-mosque text-white text-xs font-medium px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
-            {action}
+            {actionLabel}
           </span>
           {badge && (
             <span className="bg-card-bg/90 backdrop-blur-md text-nordic-dark text-xs font-medium px-3 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
@@ -56,7 +63,7 @@ export default function PropertyGallery({
           className="absolute bottom-4 right-4 bg-card-bg/90 hover:bg-card-bg text-nordic-dark px-4 py-2 rounded-lg text-sm font-medium shadow-lg backdrop-blur-md transition-all flex items-center gap-2 z-10 cursor-pointer active:scale-95"
         >
           <span className="material-icons text-sm">grid_view</span>
-          <span>View All Photos ({validImages.length})</span>
+          <span>{viewPhotosLabel}</span>
         </button>
       </div>
 

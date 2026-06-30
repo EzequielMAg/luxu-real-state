@@ -81,7 +81,10 @@
     "estimatedPayment": "Pago Estimado",
     "startingFrom": "Desde",
     "withDown": "con 20% de enganche",
-    "calculateMortgage": "Calcular Hipoteca"
+    "calculateMortgage": "Calcular Hipoteca",
+    "viewAllPhotos": "Ver todas las fotos ({count})",
+    "viewOnGoogleMaps": "Ver en Google Maps",
+    "allRightsReserved": "© 2026 LuxeEstate Inc. Todos los derechos reservados."
   },
   "pagination": {
     "prev": "Anterior",

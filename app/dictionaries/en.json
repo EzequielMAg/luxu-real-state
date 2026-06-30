@@ -81,7 +81,10 @@
     "estimatedPayment": "Estimated Payment",
     "startingFrom": "Starting from",
     "withDown": "with 20% down",
-    "calculateMortgage": "Calculate Mortgage"
+    "calculateMortgage": "Calculate Mortgage",
+    "viewAllPhotos": "View All Photos ({count})",
+    "viewOnGoogleMaps": "View on Google Maps",
+    "allRightsReserved": "© 2026 LuxeEstate Inc. All rights reserved."
   },
   "pagination": {
     "prev": "Previous",

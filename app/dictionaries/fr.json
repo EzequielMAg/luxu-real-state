@@ -81,7 +81,10 @@
     "estimatedPayment": "Paiement Estimé",
     "startingFrom": "À partir de",
     "withDown": "avec 20% d'apport",
-    "calculateMortgage": "Calculer l'Hypothèque"
+    "calculateMortgage": "Calculer l'Hypothèque",
+    "viewAllPhotos": "Voir toutes les photos ({count})",
+    "viewOnGoogleMaps": "Voir sur Google Maps",
+    "allRightsReserved": "© 2026 LuxeEstate Inc. Tous droits réservés."
   },
   "pagination": {
     "prev": "Précédent",

@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { Locale, hasLocale, defaultLocale } from "../dictionaries";
 
 export async function setLocaleAction(locale: string): Promise<Locale> {
@@ -12,6 +13,8 @@ export async function setLocaleAction(locale: string): Promise<Locale> {
     maxAge: 60 * 60 * 24 * 365, // 1 año de duración
     sameSite: "lax",
   });
+
+  revalidatePath("/", "layout");
 
   return targetLocale;
 }

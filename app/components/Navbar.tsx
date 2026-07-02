@@ -5,12 +5,40 @@ import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "../i18n/I18nProvider";
 import LanguageSelector from "./LanguageSelector";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 export default function Navbar() {
   const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [user, setUser] = useState<User | null>(null);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setProfileMenuOpen(false);
+  };
 
   // Al montar, leemos la preferencia del localStorage o del sistema
   useEffect(() => {
@@ -105,19 +133,59 @@ export default function Navbar() {
                 <span className="material-icons opacity-0">dark_mode</span>
               )}
             </button>
-            
-            {/* Profile */}
-            <button className="flex items-center gap-2 pl-2 border-l border-nordic-dark/10 ml-2">
-              <div className="w-9 h-9 rounded-full bg-nordic-dark/10 overflow-hidden ring-2 ring-transparent hover:ring-mosque transition-all relative">
-                <Image
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAWhQZ663Bd08kmzjbOPmUk4UIxYooNONShMEFXLR-DtmVi6Oz-TiaY77SPwFk7g0OobkeZEOMvt6v29mSOD0Xm2g95WbBG3ZjWXmiABOUwGU0LOySRfVDo-JTXQ0-gtwjWxbmue0qDm91m-zEOEZwAW6iRFB1qC1bAU-wkjxm67Sbztq8w7srHkFT9bVEC86qG-FzhOBTomhAurNRmx9l8Yfqabk328NfdKuVLckgCdaPsNFE3yN65MeoRi05GA_gXIMwG4YDIeA"
-                  width={36}
-                  height={36}
-                />
-              </div>
-            </button>
+
+            {/* Profile / Auth */}
+            <div className="flex items-center pl-2 border-l border-nordic-dark/10 ml-2 relative">
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                    className="flex items-center gap-2 cursor-pointer focus:outline-none"
+                    title={user.email || "Profile"}
+                  >
+                    <div className="w-9 h-9 rounded-full bg-nordic-dark/10 overflow-hidden ring-2 ring-transparent hover:ring-mosque transition-all relative flex items-center justify-center">
+                      {user.user_metadata?.avatar_url || user.user_metadata?.picture ? (
+                        <Image
+                          alt="Profile"
+                          className="w-full h-full object-cover"
+                          src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
+                          width={36}
+                          height={36}
+                        />
+                      ) : (
+                        <span className="material-icons text-nordic-dark/70 text-lg">person</span>
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {profileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-card-bg dark:bg-[#152e2a] rounded-xl shadow-soft border border-nordic-dark/10 py-1.5 z-50">
+                      <div className="px-4 py-2 border-b border-nordic-dark/10">
+                        <p className="text-xs font-medium text-nordic-dark/60 dark:text-gray-400">Signed in as</p>
+                        <p className="text-sm font-semibold text-nordic-dark dark:text-white truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-nordic-dark/5 flex items-center gap-2 transition-colors cursor-pointer"
+                      >
+                        <span className="material-icons text-base">logout</span>
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-mosque text-white text-sm font-medium hover:bg-mosque/90 transition-all shadow-sm"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
 
             {/* Mobile Hamburger Menu Toggle */}
             <button
@@ -132,9 +200,8 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`md:hidden border-t border-nordic-dark/5 bg-background-light overflow-hidden transition-all duration-300 ${
-          mobileMenuOpen ? "max-h-56" : "max-h-0"
-        }`}
+        className={`md:hidden border-t border-nordic-dark/5 bg-background-light overflow-hidden transition-all duration-300 ${mobileMenuOpen ? "max-h-56" : "max-h-0"
+          }`}
       >
         <div className="px-4 py-2 space-y-1">
           <a className="block px-3 py-2 rounded-md text-base font-medium text-mosque bg-mosque/10" href="#">

@@ -107,8 +107,6 @@ export default function Navbar() {
 
           {/* Right Icons */}
           <div className="flex items-center space-x-3 sm:space-x-5">
-            <LanguageSelector />
-
             <button className="text-nordic-dark hover:text-mosque transition-colors" title="Buscar / Search">
               <span className="material-icons">search</span>
             </button>
@@ -185,6 +183,11 @@ export default function Navbar() {
                   Sign In
                 </Link>
               )}
+            </div>
+
+            {/* Language Selector */}
+            <div className="flex items-center pl-1">
+              <LanguageSelector />
             </div>
 
             {/* Mobile Hamburger Menu Toggle */}

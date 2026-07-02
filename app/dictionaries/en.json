@@ -116,5 +116,16 @@
     "locationMap": "Location & Map",
     "agentTitle": "Exclusive Agent",
     "agentRole": "Luxury Property Specialist"
+  },
+  "login": {
+    "welcomeTitle": "Welcome to LuxeEstate",
+    "welcomeSubtitle": "Unlock exclusive properties worldwide.",
+    "continueGoogle": "Continue with Google",
+    "continueGithub": "Continue with GitHub",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "privacyPolicy": "Privacy Policy",
+    "termsService": "Terms of Service",
+    "helpCenter": "Help Center"
   }
 }

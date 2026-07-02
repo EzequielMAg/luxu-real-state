@@ -116,5 +116,16 @@
     "locationMap": "Emplacement et Carte",
     "agentTitle": "Agent Exclusif",
     "agentRole": "Spécialiste de l'Immobilier de Luxe"
+  },
+  "login": {
+    "welcomeTitle": "Bienvenue chez LuxeEstate",
+    "welcomeSubtitle": "Accédez à des propriétés exclusives dans le monde entier.",
+    "continueGoogle": "Continuer avec Google",
+    "continueGithub": "Continuer avec GitHub",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "signUp": "S'inscrire",
+    "privacyPolicy": "Politique de Confidentialité",
+    "termsService": "Conditions d'Utilisation",
+    "helpCenter": "Centre d'Aide"
   }
 }

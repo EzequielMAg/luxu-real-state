@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "../i18n/I18nProvider";
@@ -15,7 +15,18 @@ export default function Navbar() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [user, setUser] = useState<User | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const getUser = async () => {
@@ -140,7 +151,7 @@ export default function Navbar() {
             {/* Profile / Auth */}
             <div className="flex items-center pl-2 sm:pl-3 border-l border-nordic-dark/10 relative">
               {user ? (
-                <div className="relative">
+                <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className="flex items-center gap-2 cursor-pointer focus:outline-none"
@@ -165,7 +176,9 @@ export default function Navbar() {
                   {profileMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-card-bg dark:bg-[#152e2a] rounded-xl shadow-soft border border-nordic-dark/10 py-1.5 z-50">
                       <div className="px-4 py-2 border-b border-nordic-dark/10">
-                        <p className="text-xs font-medium text-nordic-dark/60 dark:text-gray-400">Signed in as</p>
+                        <p className="text-xs font-medium text-nordic-dark/60 dark:text-gray-400">
+                          {(t as any).nav?.signedInAs || "Signed in as"}
+                        </p>
                         <p className="text-sm font-semibold text-nordic-dark dark:text-white truncate">
                           {user.email}
                         </p>
@@ -175,7 +188,7 @@ export default function Navbar() {
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-nordic-dark/5 flex items-center gap-2 transition-colors cursor-pointer"
                       >
                         <span className="material-icons text-base">logout</span>
-                        Sign Out
+                        {(t as any).nav?.signOut || "Sign Out"}
                       </button>
                     </div>
                   )}
@@ -185,7 +198,7 @@ export default function Navbar() {
                   href="/login"
                   className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-mosque text-white text-sm font-medium hover:bg-mosque/90 transition-all shadow-sm"
                 >
-                  Sign In
+                  {(t as any).nav?.signIn || "Sign In"}
                 </Link>
               )}
             </div>

@@ -6,6 +6,8 @@
     "heritage": "Nuestra Herencia",
     "saved": "Guardados",
     "signIn": "Iniciar Sesión",
+    "signOut": "Cerrar Sesión",
+    "signedInAs": "Conectado como",
     "submitProperty": "Publicar Propiedad",
     "searchPlaceholder": "Buscar por ubicación..."
   },

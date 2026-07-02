@@ -6,6 +6,8 @@
     "heritage": "Notre Héritage",
     "saved": "Sauvegardés",
     "signIn": "Connexion",
+    "signOut": "Déconnexion",
+    "signedInAs": "Connecté en tant que",
     "submitProperty": "Publier un Bien",
     "searchPlaceholder": "Rechercher par lieu..."
   },

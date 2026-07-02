@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { useTranslation } from "../i18n/I18nProvider";
 
 interface PropertyMapProps {
   lat: number;
@@ -13,6 +14,9 @@ interface PropertyMapProps {
 }
 
 export default function PropertyMap({ lat, lng, title, address }: PropertyMapProps) {
+  const { t } = useTranslation();
+  const mapLabel = (t.properties as Record<string, string>).viewOnGoogleMaps || "View on Google Maps";
+
   // Custom HTML DivIcon matching the animated bouncing home design from code.html
   const customMarkerIcon = L.divIcon({
     className: "custom-leaflet-marker",
@@ -54,7 +58,7 @@ export default function PropertyMap({ lat, lng, title, address }: PropertyMapPro
         rel="noopener noreferrer"
         className="absolute bottom-2 right-2 bg-card-bg/90 backdrop-blur-md text-xs font-medium px-2.5 py-1 rounded shadow-sm text-nordic-dark hover:text-mosque transition-colors z-[400]"
       >
-        View on Google Maps
+        {mapLabel}
       </a>
     </div>
   );

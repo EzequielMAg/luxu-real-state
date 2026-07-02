@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { getProperties } from "../actions/properties";
+import { useTranslation } from "../i18n/I18nProvider";
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -41,6 +42,8 @@ export default function FilterModal({
   initialFilters,
   onApply,
 }: FilterModalProps) {
+  const { t, locale } = useTranslation();
+
   // Local state initialized with initialFilters
   const [location, setLocation] = useState(initialFilters.search ?? "");
   const [minPrice, setMinPrice] = useState(initialFilters.minPrice ?? "");
@@ -149,10 +152,20 @@ export default function FilterModal({
 
   // Helper for pricing display format in slider visual
   const getPriceDisplay = () => {
-    if (!minPrice && !maxPrice) return "Any Price";
+    if (!minPrice && !maxPrice) return t.hero.anyPrice;
     const formattedMin = minPrice ? `$${parseFloat(minPrice.replace(/,/g, "")).toLocaleString()}` : "$0";
     const formattedMax = maxPrice ? `$${parseFloat(maxPrice.replace(/,/g, "")).toLocaleString()}` : "Any";
     return `${formattedMin} – ${formattedMax}`;
+  };
+
+  const getAmenityLabel = (id: string) => {
+    if (id === "Swimming Pool") return t.filters.pool;
+    if (id === "Gym") return t.filters.gym;
+    if (id === "Parking") return locale === "es" ? "Estacionamiento" : locale === "fr" ? "Parking" : "Parking";
+    if (id === "Air Conditioning") return locale === "es" ? "Aire Acondicionado" : locale === "fr" ? "Climatisation" : "Air Conditioning";
+    if (id === "High-speed Wifi") return locale === "es" ? "Wifi de Alta Velocidad" : locale === "fr" ? "Wifi Haut Débit" : "High-speed Wifi";
+    if (id === "Patio / Terrace") return locale === "es" ? "Patio / Terraza" : locale === "fr" ? "Patio / Terrasse" : "Patio / Terrace";
+    return id;
   };
 
   return (
@@ -168,7 +181,7 @@ export default function FilterModal({
         {/* Header */}
         <header className="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-gray-900 sticky top-0 z-30">
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
-            Filters
+            {t.filters.title}
           </h1>
           <button
             onClick={onClose}
@@ -183,7 +196,7 @@ export default function FilterModal({
           {/* Section 1: Location */}
           <section>
             <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
-              Location
+              {t.hero.locationLabel}
             </label>
             <div className="relative group">
               <span className="material-icons absolute left-4 top-3.5 text-gray-400 group-focus-within:text-mosque transition-colors">
@@ -191,7 +204,7 @@ export default function FilterModal({
               </span>
               <input
                 className="w-full pl-12 pr-4 py-3 bg-[#f5f8f6] dark:bg-gray-800 border-0 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-mosque focus:bg-white dark:focus:bg-gray-800 transition-all shadow-sm outline-none"
-                placeholder="City, neighborhood, or address"
+                placeholder={t.hero.locationPlaceholder}
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
@@ -203,7 +216,7 @@ export default function FilterModal({
           <section>
             <div className="flex justify-between items-end mb-4">
               <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Price Range
+                {t.filters.priceRange}
               </label>
               <span className="text-sm font-medium text-mosque">
                 {getPriceDisplay()}
@@ -222,7 +235,7 @@ export default function FilterModal({
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-[#f5f8f6] dark:bg-gray-800 p-3 rounded-lg border border-transparent focus-within:border-mosque/30 transition-colors">
                 <label className="block text-[10px] text-gray-500 uppercase font-medium mb-1">
-                  Min Price
+                  {t.filters.minPrice}
                 </label>
                 <div className="flex items-center">
                   <span className="text-gray-400 mr-1">$</span>
@@ -240,7 +253,7 @@ export default function FilterModal({
               </div>
               <div className="bg-[#f5f8f6] dark:bg-gray-800 p-3 rounded-lg border border-transparent focus-within:border-mosque/30 transition-colors">
                 <label className="block text-[10px] text-gray-500 uppercase font-medium mb-1">
-                  Max Price
+                  {t.filters.maxPrice}
                 </label>
                 <div className="flex items-center">
                   <span className="text-gray-400 mr-1">$</span>
@@ -264,7 +277,7 @@ export default function FilterModal({
             {/* Property Type */}
             <div className="space-y-3">
               <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Property Type
+                {t.filters.propertyType}
               </label>
               <div className="relative">
                 <select
@@ -272,11 +285,11 @@ export default function FilterModal({
                   onChange={(e) => setPropertyType(e.target.value)}
                   className="w-full bg-[#f5f8f6] dark:bg-gray-800 border-0 rounded-lg py-3 pl-4 pr-10 text-gray-900 dark:text-white appearance-none focus:ring-2 focus:ring-mosque cursor-pointer outline-none"
                 >
-                  <option>Any Type</option>
-                  <option>House</option>
-                  <option>Apartment</option>
-                  <option>Villa</option>
-                  <option>Penthouse</option>
+                  <option value="Any Type">{t.filters.typeAll}</option>
+                  <option value="House">{locale === "es" ? "Casa" : locale === "fr" ? "Maison" : "House"}</option>
+                  <option value="Apartment">{locale === "es" ? "Apartamento" : locale === "fr" ? "Appartement" : "Apartment"}</option>
+                  <option value="Villa">Villa</option>
+                  <option value="Penthouse">Penthouse</option>
                 </select>
                 <span className="material-icons absolute right-3 top-3 text-gray-400 pointer-events-none">
                   expand_more
@@ -289,7 +302,7 @@ export default function FilterModal({
               {/* Beds */}
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Bedrooms
+                  {t.filters.bedrooms}
                 </span>
                 <div className="flex items-center space-x-3 bg-[#f5f8f6] dark:bg-gray-800 rounded-full p-1">
                   <button
@@ -300,7 +313,7 @@ export default function FilterModal({
                     <span className="material-icons text-base">remove</span>
                   </button>
                   <span className="text-sm font-semibold w-6 text-center text-gray-900 dark:text-white">
-                    {beds === 0 ? "Any" : `${beds}+`}
+                    {beds === 0 ? t.filters.any : `${beds}+`}
                   </span>
                   <button
                     onClick={() => setBeds((b) => b + 1)}
@@ -313,7 +326,7 @@ export default function FilterModal({
               {/* Baths */}
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                  Bathrooms
+                  {t.filters.bathrooms}
                 </span>
                 <div className="flex items-center space-x-3 bg-[#f5f8f6] dark:bg-gray-800 rounded-full p-1">
                   <button
@@ -324,7 +337,7 @@ export default function FilterModal({
                     <span className="material-icons text-base">remove</span>
                   </button>
                   <span className="text-sm font-semibold w-6 text-center text-gray-900 dark:text-white">
-                    {baths === 0 ? "Any" : `${baths}+`}
+                    {baths === 0 ? t.filters.any : `${baths}+`}
                   </span>
                   <button
                     onClick={() => setBaths((b) => b + 0.5)}
@@ -340,7 +353,7 @@ export default function FilterModal({
           {/* Section 4: Amenities */}
           <section>
             <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
-              Amenities & Features
+              {t.filters.amenities}
             </label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {AMENITIES_OPTIONS.map((option) => {
@@ -367,7 +380,7 @@ export default function FilterModal({
                       >
                         {option.icon}
                       </span>
-                      {option.label}
+                      {getAmenityLabel(option.id)}
                     </div>
                     {isActive && (
                       <div className="absolute top-2 right-2 w-2 h-2 bg-mosque rounded-full opacity-100 transition-opacity"></div>
@@ -385,7 +398,7 @@ export default function FilterModal({
             onClick={handleClearAll}
             className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors underline decoration-gray-300 underline-offset-4 cursor-pointer"
           >
-            Clear all filters
+            {t.filters.clearAll}
           </button>
           <button
             onClick={handleApply}
@@ -398,7 +411,7 @@ export default function FilterModal({
               </>
             ) : (
               <>
-                Show {matchingCount ?? 0} Homes
+                {t.filters.showResults} ({matchingCount ?? 0})
                 <span className="material-icons text-sm">arrow_forward</span>
               </>
             )}

@@ -14,6 +14,7 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [user, setUser] = useState<User | null>(null);
+  const [appRole, setAppRole] = useState<string | null>(null);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
@@ -32,12 +33,14 @@ export default function Navbar() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      setAppRole(user?.app_metadata?.app_role ?? null);
     };
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
+        setAppRole(session?.user?.app_metadata?.app_role ?? null);
       }
     );
 
@@ -183,6 +186,16 @@ export default function Navbar() {
                           {user.email}
                         </p>
                       </div>
+                      {appRole === "admin" && (
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="w-full text-left px-4 py-2 text-sm text-nordic-dark dark:text-white hover:bg-nordic-dark/5 flex items-center gap-2 transition-colors cursor-pointer"
+                        >
+                          <span className="material-icons text-base">dashboard</span>
+                          Dashboard
+                        </Link>
+                      )}
                       <button
                         onClick={handleSignOut}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-nordic-dark/5 flex items-center gap-2 transition-colors cursor-pointer"

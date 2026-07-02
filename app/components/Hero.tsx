@@ -3,10 +3,12 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useTransition, useState } from "react";
 import FilterModal from "./FilterModal";
+import { useTranslation } from "../i18n/I18nProvider";
 
 const CATEGORIES = ["All", "House", "Apartment", "Villa", "Penthouse"];
 
 export default function Hero() {
+  const { t, locale } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -92,14 +94,21 @@ export default function Hero() {
     amenities: amenitiesParam ? amenitiesParam.split(",") : undefined,
   };
 
+  const getCategoryLabel = (category: string) => {
+    if (category === "All") return t.hero.tabAll;
+    if (category === "House") return locale === "es" ? "Casa" : locale === "fr" ? "Maison" : "House";
+    if (category === "Apartment") return locale === "es" ? "Apartamento" : locale === "fr" ? "Appartement" : "Apartment";
+    return category;
+  };
+
   return (
     <section className="py-12 md:py-16">
       <div className="max-w-3xl mx-auto text-center space-y-8">
         {/* Title */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-nordic-dark leading-tight">
-          Find your{" "}
+          {t.hero.title1}{" "}
           <span className="relative inline-block">
-            <span className="relative z-10 font-medium">sanctuary</span>
+            <span className="relative z-10 font-medium">{t.hero.titleAccent}</span>
             <span className="absolute bottom-2 left-0 w-full h-3 bg-mosque/20 -rotate-1 z-0"></span>
           </span>
           .
@@ -122,7 +131,7 @@ export default function Hero() {
           <input
             name="search"
             className="block w-full pl-12 pr-28 py-4 rounded-xl border-none bg-card-bg text-nordic-dark shadow-soft placeholder-nordic-muted/60 focus:ring-2 focus:ring-mosque focus:bg-card-bg transition-all text-lg outline-none"
-            placeholder="Search by city, neighborhood, or address..."
+            placeholder={t.hero.locationPlaceholder}
             type="text"
             defaultValue={searchQuery}
             key={searchQuery}
@@ -131,12 +140,14 @@ export default function Hero() {
             type="submit"
             className="absolute inset-y-2 right-2 px-6 bg-mosque hover:bg-mosque/90 text-white font-medium rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-mosque/20 cursor-pointer"
           >
-            Search
+            {t.hero.searchBtn}
           </button>
         </form>
+      </div>
 
-        {/* Category Filters */}
-        <div className="flex items-center justify-center gap-3 overflow-x-auto hide-scroll py-2 px-4 -mx-4">
+      {/* Category Filters in wider container (max-w-5xl) to fit multi-language labels without overflow */}
+      <div className="max-w-5xl mx-auto mt-8 px-4">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 py-2">
           {CATEGORIES.map((category) => {
             const isActive = selectedCategory === category;
             return (
@@ -149,18 +160,18 @@ export default function Hero() {
                     : "bg-card-bg border border-nordic-dark/5 text-nordic-muted hover:text-nordic-dark hover:border-mosque/50 hover:bg-mosque/5"
                 }`}
               >
-                {category}
+                {getCategoryLabel(category)}
               </button>
             );
           })}
 
-          <div className="w-px h-6 bg-nordic-dark/10 mx-2"></div>
+          <div className="hidden sm:block w-px h-6 bg-nordic-dark/10 mx-1"></div>
 
           <button
             onClick={() => setIsModalOpen(true)}
             className="whitespace-nowrap flex items-center gap-1 px-4 py-2 rounded-full text-nordic-dark font-medium text-sm hover:bg-nordic-dark/5 transition-colors cursor-pointer"
           >
-            <span className="material-icons text-base">tune</span> Filters
+            <span className="material-icons text-base">tune</span> {t.hero.advancedFiltersBtn}
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useTransition } from "react";
+import { useTranslation } from "../i18n/I18nProvider";
 
 type ActionValue = "All" | "Buy" | "Rent";
 
@@ -12,6 +13,7 @@ interface ActionFilterClientProps {
 export default function ActionFilterClient({
   currentAction,
 }: ActionFilterClientProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -34,6 +36,13 @@ export default function ActionFilterClient({
     [searchParams, pathname, router]
   );
 
+  const getActionLabel = (filter: ActionValue) => {
+    if (filter === "All") return t.hero.tabAll;
+    if (filter === "Buy") return t.hero.tabSale;
+    if (filter === "Rent") return t.hero.tabRent;
+    return filter;
+  };
+
   return (
     <div
       className={`hidden md:flex bg-card-bg p-1 rounded-lg border border-nordic-dark/5 transition-opacity ${
@@ -46,13 +55,13 @@ export default function ActionFilterClient({
           <button
             key={filter}
             onClick={() => setAction(filter)}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 ${
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${
               isActive
                 ? "bg-mosque text-white shadow-sm"
                 : "text-nordic-muted hover:text-nordic-dark"
             }`}
           >
-            {filter}
+            {getActionLabel(filter)}
           </button>
         );
       })}

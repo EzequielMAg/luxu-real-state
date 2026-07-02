@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslation } from "../i18n/I18nProvider";
+import LanguageSelector from "./LanguageSelector";
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -52,34 +55,36 @@ export default function Navbar() {
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center space-x-8">
             <a className="text-mosque font-medium text-sm border-b-2 border-mosque px-1 py-1" href="#">
-              Buy
+              {t.nav.buy}
             </a>
             <a
               className="text-nordic-dark/70 hover:text-nordic-dark font-medium text-sm hover:border-b-2 hover:border-nordic-dark/20 px-1 py-1 transition-all"
               href="#"
             >
-              Rent
+              {t.nav.rent}
             </a>
             <a
               className="text-nordic-dark/70 hover:text-nordic-dark font-medium text-sm hover:border-b-2 hover:border-nordic-dark/20 px-1 py-1 transition-all"
               href="#"
             >
-              Sell
+              {t.nav.newProjects}
             </a>
             <a
               className="text-nordic-dark/70 hover:text-nordic-dark font-medium text-sm hover:border-b-2 hover:border-nordic-dark/20 px-1 py-1 transition-all"
               href="#"
             >
-              Saved Homes
+              {t.nav.saved}
             </a>
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center space-x-4 sm:space-x-6">
-            <button className="text-nordic-dark hover:text-mosque transition-colors">
+          <div className="flex items-center space-x-3 sm:space-x-5">
+            <LanguageSelector />
+
+            <button className="text-nordic-dark hover:text-mosque transition-colors" title="Buscar / Search">
               <span className="material-icons">search</span>
             </button>
-            <button className="text-nordic-dark hover:text-mosque transition-colors relative">
+            <button className="text-nordic-dark hover:text-mosque transition-colors relative" title="Notificaciones / Notifications">
               <span className="material-icons">notifications_none</span>
               <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-background-light"></span>
             </button>
@@ -133,25 +138,25 @@ export default function Navbar() {
       >
         <div className="px-4 py-2 space-y-1">
           <a className="block px-3 py-2 rounded-md text-base font-medium text-mosque bg-mosque/10" href="#">
-            Buy
+            {t.nav.buy}
           </a>
           <a
             className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-nordic-dark/5"
             href="#"
           >
-            Rent
+            {t.nav.rent}
           </a>
           <a
             className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-nordic-dark/5"
             href="#"
           >
-            Sell
+            {t.nav.newProjects}
           </a>
           <a
             className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-nordic-dark/5"
             href="#"
           >
-            Saved Homes
+            {t.nav.saved}
           </a>
         </div>
       </div>

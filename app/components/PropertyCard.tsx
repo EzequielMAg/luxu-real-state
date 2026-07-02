@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Property } from "../types/property";
 import { togglePropertyFeatured } from "@/app/actions/properties";
+import { useTranslation } from "../i18n/I18nProvider";
 
 interface PropertyCardProps {
   property: Property;
@@ -13,13 +14,17 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property, className = "", priority = false }: PropertyCardProps) {
+  const { t, locale } = useTranslation();
   const [isToggling, setIsToggling] = useState(false);
 
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(property.price);
+  const formattedPrice = new Intl.NumberFormat(
+    locale === "es" ? "es-ES" : locale === "fr" ? "fr-FR" : "en-US",
+    {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }
+  ).format(property.price);
 
   const isRent = property.action === "Rent";
 
@@ -95,11 +100,11 @@ export default function PropertyCard({ property, className = "", priority = fals
         <div className="mt-auto flex items-center justify-between pt-3 border-t border-nordic-dark/10">
           <div className="flex items-center gap-1 text-nordic-muted text-xs">
             <span className="material-icons text-sm text-mosque/80">king_bed</span>
-            {property.beds}
+            {property.beds} {t.properties.beds}
           </div>
           <div className="flex items-center gap-1 text-nordic-muted text-xs">
             <span className="material-icons text-sm text-mosque/80">bathtub</span>
-            {property.baths}
+            {property.baths} {t.properties.baths}
           </div>
           <div className="flex items-center gap-1 text-nordic-muted text-xs">
             <span className="material-icons text-sm text-mosque/80">square_foot</span>

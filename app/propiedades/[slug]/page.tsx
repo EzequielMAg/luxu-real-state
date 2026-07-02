@@ -1,10 +1,12 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { cookies } from "next/headers";
 import Navbar from "@/app/components/Navbar";
 import PropertyGallery from "@/app/components/PropertyGallery";
 import PropertyMapClient from "@/app/components/PropertyMapClient";
 import { getPropertyBySlug } from "@/app/actions/properties";
+import { dictionaries, Locale } from "@/app/dictionaries";
 
 interface PropertyPageProps {
   params: Promise<{ slug: string }>;
@@ -19,11 +21,18 @@ export async function generateMetadata({ params }: PropertyPageProps): Promise<M
     return { title: "Property Not Found | LuxeEstate" };
   }
 
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(property.price);
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get("NEXT_LOCALE")?.value as Locale | undefined;
+  const locale: Locale = localeCookie && dictionaries[localeCookie] ? localeCookie : "es";
+
+  const formattedPrice = new Intl.NumberFormat(
+    locale === "es" ? "es-ES" : locale === "fr" ? "fr-FR" : "en-US",
+    {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }
+  ).format(property.price);
 
   return {
     title: `${property.title} (${formattedPrice}) | LuxeEstate`,
@@ -52,11 +61,19 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
     notFound();
   }
 
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(property.price);
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get("NEXT_LOCALE")?.value as Locale | undefined;
+  const locale: Locale = localeCookie && dictionaries[localeCookie] ? localeCookie : "es";
+  const t = dictionaries[locale];
+
+  const formattedPrice = new Intl.NumberFormat(
+    locale === "es" ? "es-ES" : locale === "fr" ? "fr-FR" : "en-US",
+    {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }
+  ).format(property.price);
 
   const isRent = property.action === "Rent";
 
@@ -79,6 +96,57 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
     },
     numberOfRooms: property.beds,
   };
+
+  const getAmenityName = (name: string) => {
+    if (locale === "es") {
+      const map: Record<string, string> = {
+        "Smart Home System": "Sistema de Casa Inteligente",
+        "Swimming Pool": "Piscina",
+        "Central Heating & Cooling": "Calefacción y Aire Acondicionado Central",
+        "Electric Vehicle Charging": "Carga de Vehículos Eléctricos",
+        "Private Gym & Spa": "Gimnasio y Spa Privado",
+        "Temperature Controlled Wine Cellar": "Cava de Vinos con Control de Temperatura",
+        "24/7 Perimeter Security": "Seguridad Perimetral 24/7",
+        "High Speed Fiber Optic Ready": "Lista para Fibra Óptica de Alta Velocidad",
+      };
+      return map[name] || name;
+    }
+    if (locale === "fr") {
+      const map: Record<string, string> = {
+        "Smart Home System": "Système Domotique Intelligent",
+        "Swimming Pool": "Piscine",
+        "Central Heating & Cooling": "Chauffage et Climatisation Centraux",
+        "Electric Vehicle Charging": "Recharge pour Véhicule Électrique",
+        "Private Gym & Spa": "Salle de Sport & Spa Privés",
+        "Temperature Controlled Wine Cellar": "Cave à Vin Thermorégulée",
+        "24/7 Perimeter Security": "Sécurité Périmétrique 24/7",
+        "High Speed Fiber Optic Ready": "Fibre Optique Haut Débit Prête",
+      };
+      return map[name] || name;
+    }
+    return name;
+  };
+
+  const getAboutText = () => {
+    if (locale === "es") {
+      return {
+        p1: `Disfruta del lujo moderno en esta impresionante propiedad ubicada en ${property.address}. Diseñada con un enfoque en la perfecta integración interior-exterior, la residencia cuenta con proporciones refinadas, acabados personalizados y abundante luz natural.`,
+        p2: "El área de estar de concepto abierto se integra perfectamente con amenidades de última generación, ofreciendo un santuario inigualable tanto para el descanso privado como para recibir invitados con el mayor confort.",
+      };
+    }
+    if (locale === "fr") {
+      return {
+        p1: `Découvrez le luxe moderne dans cette superbe propriété située à ${property.address}. Conçue pour une intégration parfaite entre intérieur et extérieur, la résidence offre des proportions raffinées, des finitions sur mesure et une abondante lumière naturelle.`,
+        p2: "L'espace de vie à concept ouvert s'intègre parfaitement avec des équipements de pointe, offrant un véritable sanctuaire pour la détente privée ainsi que pour des réceptions d'exception.",
+      };
+    }
+    return {
+      p1: `Experience modern luxury in this architecturally stunning ${property.type.toLowerCase()} located in ${property.address}. Designed with an emphasis on seamless indoor-outdoor living, the residence features refined proportions, custom finishes, and generous natural lighting throughout.`,
+      p2: "The open-concept living area integrates perfectly with state-of-the-art amenities, offering an effortless sanctuary for both private relaxation and sophisticated hosting.",
+    };
+  };
+
+  const aboutText = getAboutText();
 
   return (
     <div className="min-h-screen bg-background-light text-nordic-dark transition-colors duration-300">
@@ -133,7 +201,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
                     <h3 className="font-semibold text-nordic-dark">Sarah Jenkins</h3>
                     <div className="flex items-center gap-1 text-xs text-mosque font-medium">
                       <span className="material-icons text-[14px]">star</span>
-                      <span>Top Rated Agent</span>
+                      <span>{t.properties.topRatedAgent}</span>
                     </div>
                   </div>
                   <div className="ml-auto flex gap-2">
@@ -152,11 +220,11 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
                     <span className="material-icons text-xl group-hover:scale-110 transition-transform">
                       calendar_today
                     </span>
-                    <span>Schedule Visit</span>
+                    <span>{t.properties.scheduleVisit}</span>
                   </button>
                   <button className="w-full bg-transparent border border-nordic-dark/15 hover:border-mosque text-nordic-dark hover:text-mosque py-4 px-6 rounded-lg font-medium transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
                     <span className="material-icons text-xl">mail_outline</span>
-                    <span>Contact Agent</span>
+                    <span>{t.properties.contactAgent}</span>
                   </button>
                 </div>
               </div>
@@ -178,7 +246,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
             {/* Property Features */}
             <div className="bg-card-bg p-8 rounded-xl shadow-sm border border-nordic-dark/10">
               <h2 className="text-lg font-semibold mb-6 text-nordic-dark">
-                Property Features
+                {t.properties.featuresTitle}
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div className="flex flex-col items-center justify-center p-4 bg-mosque/5 rounded-lg border border-mosque/10">
@@ -187,21 +255,21 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
                   </span>
                   <span className="text-xl font-bold text-nordic-dark">{property.size}</span>
                   <span className="text-xs uppercase tracking-wider text-nordic-muted">
-                    Total Area
+                    {t.properties.totalArea}
                   </span>
                 </div>
                 <div className="flex flex-col items-center justify-center p-4 bg-mosque/5 rounded-lg border border-mosque/10">
                   <span className="material-icons text-mosque text-2xl mb-2">bed</span>
                   <span className="text-xl font-bold text-nordic-dark">{property.beds}</span>
                   <span className="text-xs uppercase tracking-wider text-nordic-muted">
-                    Bedrooms
+                    {t.properties.bedrooms}
                   </span>
                 </div>
                 <div className="flex flex-col items-center justify-center p-4 bg-mosque/5 rounded-lg border border-mosque/10">
                   <span className="material-icons text-mosque text-2xl mb-2">shower</span>
                   <span className="text-xl font-bold text-nordic-dark">{property.baths}</span>
                   <span className="text-xs uppercase tracking-wider text-nordic-muted">
-                    Bathrooms
+                    {t.properties.bathrooms}
                   </span>
                 </div>
                 <div className="flex flex-col items-center justify-center p-4 bg-mosque/5 rounded-lg border border-mosque/10">
@@ -210,7 +278,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
                   </span>
                   <span className="text-xl font-bold text-nordic-dark">2</span>
                   <span className="text-xs uppercase tracking-wider text-nordic-muted">
-                    Garage
+                    {t.properties.garage}
                   </span>
                 </div>
               </div>
@@ -219,21 +287,17 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
             {/* About this home */}
             <div className="bg-card-bg p-8 rounded-xl shadow-sm border border-nordic-dark/10">
               <h2 className="text-lg font-semibold mb-4 text-nordic-dark">
-                About this home
+                {t.properties.aboutTitle}
               </h2>
               <div className="prose prose-slate max-w-none text-nordic-muted leading-relaxed space-y-4">
-                <p>
-                  Experience modern luxury in this architecturally stunning {property.type.toLowerCase()} located in {property.address}. Designed with an emphasis on seamless indoor-outdoor living, the residence features refined proportions, custom finishes, and generous natural lighting throughout.
-                </p>
-                <p>
-                  The open-concept living area integrates perfectly with state-of-the-art amenities, offering an effortless sanctuary for both private relaxation and sophisticated hosting.
-                </p>
+                <p>{aboutText.p1}</p>
+                <p>{aboutText.p2}</p>
               </div>
             </div>
 
             {/* Amenities Grid */}
             <div className="bg-card-bg p-8 rounded-xl shadow-sm border border-nordic-dark/10">
-              <h2 className="text-lg font-semibold mb-6 text-nordic-dark">Amenities</h2>
+              <h2 className="text-lg font-semibold mb-6 text-nordic-dark">{t.filters.amenities}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                 {[
                   "Smart Home System",
@@ -247,7 +311,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
                 ].map((amenity, index) => (
                   <div key={index} className="flex items-center gap-3 text-nordic-dark/80">
                     <span className="material-icons text-mosque text-sm">check_circle</span>
-                    <span className="text-sm font-medium">{amenity}</span>
+                    <span className="text-sm font-medium">{getAmenityName(amenity)}</span>
                   </div>
                 ))}
               </div>
@@ -260,23 +324,26 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
                   <span className="material-icons">calculate</span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-nordic-dark">Estimated Payment</h3>
+                  <h3 className="font-semibold text-nordic-dark">{t.properties.estimatedPayment}</h3>
                   <p className="text-sm text-nordic-muted mt-0.5">
-                    Starting from{" "}
+                    {t.properties.startingFrom}{" "}
                     <strong className="text-mosque font-bold">
-                      {new Intl.NumberFormat("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                        maximumFractionDigits: 0,
-                      }).format(Math.round(property.price * 0.0045))}
+                      {new Intl.NumberFormat(
+                        locale === "es" ? "es-ES" : locale === "fr" ? "fr-FR" : "en-US",
+                        {
+                          style: "currency",
+                          currency: "USD",
+                          maximumFractionDigits: 0,
+                        }
+                      ).format(Math.round(property.price * 0.0045))}
                       /mo
                     </strong>{" "}
-                    with 20% down
+                    {t.properties.withDown}
                   </p>
                 </div>
               </div>
               <button className="whitespace-nowrap px-4 py-2.5 bg-card-bg border border-nordic-dark/15 rounded-lg text-sm font-semibold hover:border-mosque transition-colors text-nordic-dark cursor-pointer">
-                Calculate Mortgage
+                {t.properties.calculateMortgage}
               </button>
             </div>
           </div>
@@ -286,7 +353,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
       <footer className="bg-card-bg border-t border-nordic-dark/10 mt-16 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-sm text-nordic-muted">
-            © 2026 LuxeEstate Inc. All rights reserved.
+            {(t.properties as Record<string, string>).allRightsReserved || "© 2026 LuxeEstate Inc. All rights reserved."}
           </div>
         </div>
       </footer>

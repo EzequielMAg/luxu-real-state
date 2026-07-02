@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useTransition } from "react";
+import { useTranslation } from "../i18n/I18nProvider";
 
 interface PaginationControlsProps {
   page: number;
@@ -18,6 +19,7 @@ export default function PaginationControls({
   className = "mt-12",
   compact = false,
 }: PaginationControlsProps) {
+  const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -44,15 +46,17 @@ export default function PaginationControls({
   const hasPrev = page > 1;
   const hasNext = page < totalPages;
 
+  const pageOfText = t.pagination.pageOf
+    .replace("{page}", String(page))
+    .replace("{total}", String(totalPages));
+
   if (compact) {
     return (
       <div className={`flex items-center gap-4 ${className}`}>
         {/* Page info */}
         <p className="text-xs text-nordic-muted hidden xl:inline-block">
-          Page <span className="font-medium text-nordic-dark">{page}</span> of{" "}
-          <span className="font-medium text-nordic-dark">{totalPages}</span>
-          {" · "}
-          <span className="font-medium text-nordic-dark">{total}</span> properties
+          {pageOfText} {" · "}
+          <span className="font-medium text-nordic-dark">{total}</span>
         </p>
         
         {/* Page info fallback for smaller screens */}
@@ -67,7 +71,7 @@ export default function PaginationControls({
             onClick={() => navigate(page - 1)}
             disabled={!hasPrev || isPending}
             className="inline-flex items-center justify-center w-8 h-8 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark rounded-md transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-            title="Previous Page"
+            title={t.pagination.prev}
           >
             <span className="material-icons text-base">chevron_left</span>
           </button>
@@ -118,7 +122,7 @@ export default function PaginationControls({
             onClick={() => navigate(page + 1)}
             disabled={!hasNext || isPending}
             className="inline-flex items-center justify-center w-8 h-8 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark rounded-md transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-            title="Next Page"
+            title={t.pagination.next}
           >
             <span className="material-icons text-base">chevron_right</span>
           </button>
@@ -131,12 +135,8 @@ export default function PaginationControls({
     <div className={`flex flex-col items-center gap-4 ${className}`}>
       {/* Page info */}
       <p className="text-sm text-nordic-muted">
-        Page{" "}
-        <span className="font-medium text-nordic-dark">{page}</span> of{" "}
-        <span className="font-medium text-nordic-dark">{totalPages}</span>
-        {" · "}
-        <span className="font-medium text-nordic-dark">{total}</span>{" "}
-        properties
+        {pageOfText} {" · "}
+        <span className="font-medium text-nordic-dark">{total}</span>
       </p>
 
       {/* Controls */}
@@ -145,10 +145,10 @@ export default function PaginationControls({
         <button
           onClick={() => navigate(page - 1)}
           disabled={!hasPrev || isPending}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark text-sm font-medium rounded-lg transition-all hover:shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark text-sm font-medium rounded-lg transition-all hover:shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
         >
           <span className="material-icons text-base">arrow_back</span>
-          Previous
+          {t.pagination.prev}
         </button>
 
         {/* Page numbers */}
@@ -181,7 +181,7 @@ export default function PaginationControls({
                 <button
                   key={item}
                   onClick={() => navigate(item as number)}
-                  className={`w-9 h-9 rounded-lg text-sm font-medium transition-all active:scale-95 ${
+                  className={`w-9 h-9 rounded-lg text-sm font-medium transition-all active:scale-95 cursor-pointer ${
                     item === page
                       ? "bg-mosque text-white shadow-sm"
                       : "bg-card-bg border border-nordic-dark/10 text-nordic-dark hover:border-mosque hover:text-mosque hover:shadow-sm"
@@ -197,9 +197,9 @@ export default function PaginationControls({
         <button
           onClick={() => navigate(page + 1)}
           disabled={!hasNext || isPending}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark text-sm font-medium rounded-lg transition-all hover:shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-card-bg border border-nordic-dark/10 hover:border-mosque hover:text-mosque text-nordic-dark text-sm font-medium rounded-lg transition-all hover:shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
         >
-          Next
+          {t.pagination.next}
           <span className="material-icons text-base">arrow_forward</span>
         </button>
       </div>

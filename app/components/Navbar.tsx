@@ -132,8 +132,13 @@ export default function Navbar() {
               )}
             </button>
 
+            {/* Language Selector */}
+            <div className="flex items-center">
+              <LanguageSelector />
+            </div>
+
             {/* Profile / Auth */}
-            <div className="flex items-center pl-2 border-l border-nordic-dark/10 ml-2 relative">
+            <div className="flex items-center pl-2 sm:pl-3 border-l border-nordic-dark/10 relative">
               {user ? (
                 <div className="relative">
                   <button
@@ -183,11 +188,6 @@ export default function Navbar() {
                   Sign In
                 </Link>
               )}
-            </div>
-
-            {/* Language Selector */}
-            <div className="flex items-center pl-1">
-              <LanguageSelector />
             </div>
 
             {/* Mobile Hamburger Menu Toggle */}

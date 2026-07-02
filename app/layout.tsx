@@ -30,7 +30,10 @@ export default async function RootLayout({
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+      </head>
+      <body className="min-h-full flex flex-col">
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -46,8 +49,6 @@ export default async function RootLayout({
             `,
           }}
         />
-      </head>
-      <body className="min-h-full flex flex-col">
         <I18nProvider initialLocale={locale} initialDictionary={dictionary}>
           {children}
         </I18nProvider>

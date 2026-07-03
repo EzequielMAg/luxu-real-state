@@ -1,6 +1,7 @@
 import { getProperties } from "@/app/actions/properties";
 import { getDictionary, hasLocale, defaultLocale, Locale } from "@/app/dictionaries";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import PropertiesTable from "@/app/dashboard/components/PropertiesTable";
 
 export const metadata = {
@@ -56,10 +57,13 @@ export default async function DashboardPage({
             <span className="material-icons text-base">tune</span>
             Filter
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-mosque text-white text-sm font-semibold hover:bg-mosque/90 transition-all shadow-sm shadow-mosque/20">
+          <Link
+            href="/dashboard/properties/create"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-mosque text-white text-sm font-semibold hover:bg-mosque/90 transition-all shadow-sm shadow-mosque/20"
+          >
             <span className="material-icons text-base">add</span>
             Add New Property
-          </button>
+          </Link>
         </div>
       </div>
 

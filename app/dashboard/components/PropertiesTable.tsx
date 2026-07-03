@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Property } from "@/app/types/property";
 import { togglePropertyFeatured } from "@/app/actions/properties";
 
@@ -192,12 +193,13 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                 {/* Actions */}
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button
+                    <Link
+                      href={`/dashboard/properties/${property.id}/edit`}
                       title="Edit property"
                       className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-mosque dark:hover:text-[#4db8a0] hover:bg-mosque/5 transition-all cursor-pointer"
                     >
                       <span className="material-icons text-base">edit</span>
-                    </button>
+                    </Link>
                     <button
                       title="Delete property"
                       className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all cursor-pointer"

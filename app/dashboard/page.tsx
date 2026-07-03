@@ -26,12 +26,13 @@ export default async function DashboardPage({
 
   const { properties, total, totalPages } = await getProperties({
     page: currentPage,
+    limit: PAGE_SIZE,
     search,
   });
 
   // Stats: para las cards usamos getProperties sin filtro
-  const { total: totalAll } = await getProperties({ page: 1 });
-  const { properties: allForStats } = await getProperties({ page: 1 });
+  const { total: totalAll } = await getProperties({ page: 1, limit: 100 });
+  const { properties: allForStats } = await getProperties({ page: 1, limit: 100 });
   const featuredCount = allForStats.filter((p) => p.is_featured).length;
   const buyCount = allForStats.filter((p) => p.action === "Buy").length;
 
@@ -109,28 +110,45 @@ export default async function DashboardPage({
             results
           </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
             <a
               href={`/dashboard?page=${currentPage - 1}${search ? `&search=${search}` : ""}`}
               aria-disabled={currentPage <= 1}
-              className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
+              className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${
                 currentPage <= 1
                   ? "border-gray-100 dark:border-white/5 text-gray-300 dark:text-white/20 cursor-not-allowed pointer-events-none"
                   : "border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5"
               }`}
+              title="Previous page"
             >
-              Previous
+              <span className="material-icons text-sm">chevron_left</span>
             </a>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <a
+                key={pageNum}
+                href={`/dashboard?page=${pageNum}${search ? `&search=${search}` : ""}`}
+                className={`w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all ${
+                  pageNum === currentPage
+                    ? "bg-mosque dark:bg-[#11302b] text-white shadow-sm shadow-mosque/20"
+                    : "border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5"
+                }`}
+              >
+                {pageNum}
+              </a>
+            ))}
+
             <a
               href={`/dashboard?page=${currentPage + 1}${search ? `&search=${search}` : ""}`}
               aria-disabled={currentPage >= totalPages}
-              className={`px-4 py-2 rounded-xl border text-sm font-medium transition-all ${
+              className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${
                 currentPage >= totalPages
                   ? "border-gray-100 dark:border-white/5 text-gray-300 dark:text-white/20 cursor-not-allowed pointer-events-none"
                   : "border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5"
               }`}
+              title="Next page"
             >
-              Next
+              <span className="material-icons text-sm">chevron_right</span>
             </a>
           </div>
         </div>

@@ -8,6 +8,7 @@ const PROPERTIES_PER_PAGE = 8;
 
 interface GetPropertiesParams {
   page?: number;
+  limit?: number;
   type?: PropertyType | "All";
   action?: PropertyAction | "All";
   search?: string;
@@ -30,6 +31,7 @@ interface GetPropertiesResult {
  */
 export async function getProperties({
   page = 1,
+  limit,
   type = "All",
   action = "All",
   search = "",
@@ -39,8 +41,9 @@ export async function getProperties({
   baths,
   amenities,
 }: GetPropertiesParams = {}): Promise<GetPropertiesResult> {
-  const from = (page - 1) * PROPERTIES_PER_PAGE;
-  const to = from + PROPERTIES_PER_PAGE - 1;
+  const pageSize = limit ?? PROPERTIES_PER_PAGE;
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
 
   let query = supabase
     .from("properties")
@@ -91,7 +94,7 @@ export async function getProperties({
   }
 
   const total = count ?? 0;
-  const totalPages = Math.ceil(total / PROPERTIES_PER_PAGE);
+  const totalPages = Math.ceil(total / pageSize);
 
   return {
     properties: (data as Property[]) ?? [],

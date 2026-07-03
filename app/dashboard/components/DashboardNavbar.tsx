@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -14,6 +15,18 @@ const NAV_LINKS = [
 export default function DashboardNavbar({ user }: { user: User }) {
   const pathname = usePathname();
   const supabase = createClient();
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
@@ -67,7 +80,7 @@ export default function DashboardNavbar({ user }: { user: User }) {
             <span className="material-icons text-xl">notifications_none</span>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative" ref={profileRef}>
             <div className="text-right hidden sm:block">
               <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">
                 {displayName}
@@ -75,9 +88,9 @@ export default function DashboardNavbar({ user }: { user: User }) {
               <p className="text-xs text-gray-400 dark:text-white/40">Admin</p>
             </div>
             <button
-              onClick={handleSignOut}
-              title="Sign Out"
-              className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-mosque/50 transition-all"
+              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+              title="Profile menu"
+              className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden flex items-center justify-center hover:ring-2 hover:ring-mosque/50 transition-all cursor-pointer"
             >
               {avatarUrl ? (
                 <Image
@@ -93,6 +106,35 @@ export default function DashboardNavbar({ user }: { user: User }) {
                 </span>
               )}
             </button>
+
+            {/* Dropdown Menu */}
+            {profileMenuOpen && (
+              <div className="absolute right-0 top-12 mt-2 w-48 bg-white dark:bg-[#152e2a] rounded-xl shadow-lg border border-gray-200 dark:border-white/10 py-1.5 z-50">
+                <div className="px-4 py-2 border-b border-gray-100 dark:border-white/10">
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    Signed in as
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                    {user.email}
+                  </p>
+                </div>
+                <Link
+                  href="/"
+                  onClick={() => setProfileMenuOpen(false)}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  <span className="material-icons text-base">home</span>
+                  Back to Home
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-white/5 flex items-center gap-2 transition-colors cursor-pointer"
+                >
+                  <span className="material-icons text-base">logout</span>
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

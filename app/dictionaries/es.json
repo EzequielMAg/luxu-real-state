@@ -157,7 +157,17 @@
     "rent": "Alquiler",
     "totalProperties": "Total Propiedades",
     "totalUsers": "Total Usuarios",
-    "adminUsers": "Usuarios Admin"
+    "adminUsers": "Usuarios Admin",
+    "colPropertyDetails": "Detalles de Propiedad",
+    "colStatus": "Estado",
+    "colActions": "Acciones",
+    "monthlyPrefix": "Mensual: ",
+    "bedsLabel": "Hab",
+    "bathsLabel": "Baños",
+    "sqftLabel": "m²",
+    "statusForSale": "En Venta",
+    "statusForRent": "En Alquiler",
+    "noPropertiesFound": "No se encontraron propiedades."
   },
   "propertyForm": {
     "breadcrumbProperties": "Propiedades",

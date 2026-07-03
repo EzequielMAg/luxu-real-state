@@ -157,7 +157,17 @@
     "rent": "Rent",
     "totalProperties": "Total Properties",
     "totalUsers": "Total Users",
-    "adminUsers": "Admin Users"
+    "adminUsers": "Admin Users",
+    "colPropertyDetails": "Property Details",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "monthlyPrefix": "Monthly: ",
+    "bedsLabel": "Beds",
+    "bathsLabel": "Baths",
+    "sqftLabel": "sqft",
+    "statusForSale": "For Sale",
+    "statusForRent": "For Rent",
+    "noPropertiesFound": "No properties found."
   },
   "propertyForm": {
     "breadcrumbProperties": "Properties",

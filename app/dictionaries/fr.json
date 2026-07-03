@@ -157,7 +157,17 @@
     "rent": "Location",
     "totalProperties": "Total Propriétés",
     "totalUsers": "Total Utilisateurs",
-    "adminUsers": "Utilisateurs Admin"
+    "adminUsers": "Utilisateurs Admin",
+    "colPropertyDetails": "Détails de la Propriété",
+    "colStatus": "Statut",
+    "colActions": "Actions",
+    "monthlyPrefix": "Mensuel: ",
+    "bedsLabel": "Ch",
+    "bathsLabel": "SdB",
+    "sqftLabel": "m²",
+    "statusForSale": "À Vendre",
+    "statusForRent": "À Louer",
+    "noPropertiesFound": "Aucune propriété trouvée."
   },
   "propertyForm": {
     "breadcrumbProperties": "Propriétés",

@@ -5,25 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { Property } from "@/app/types/property";
 import { togglePropertyFeatured } from "@/app/actions/properties";
+import { useTranslation } from "@/app/i18n/I18nProvider";
 
 interface PropertiesTableProps {
   properties: Property[];
 }
-
-const STATUS_CONFIG = {
-  featured: {
-    label: "Featured",
-    dot: "bg-green-500",
-    bg: "bg-green-50 dark:bg-green-900/20",
-    text: "text-green-700 dark:text-green-300",
-  },
-  standard: {
-    label: "Active",
-    dot: "bg-green-500",
-    bg: "bg-green-50 dark:bg-green-900/20",
-    text: "text-green-700 dark:text-green-300",
-  },
-};
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("en-US", {
@@ -49,6 +35,8 @@ function estimateMonthly(price: number): string {
 }
 
 export default function PropertiesTable({ properties }: PropertiesTableProps) {
+  const { t } = useTranslation();
+  const d = (t as any).dashboard || {};
   const [isPending, startTransition] = useTransition();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -66,16 +54,16 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
         <thead>
           <tr className="border-b border-gray-100 dark:border-white/5">
             <th className="text-left px-6 py-4 text-xs font-semibold text-gray-400 dark:text-white/30 uppercase tracking-wider">
-              Property Details
+              {d.colPropertyDetails || "Property Details"}
             </th>
             <th className="text-left px-4 py-4 text-xs font-semibold text-gray-400 dark:text-white/30 uppercase tracking-wider">
-              Price
+              {d.colPrice || "Price"}
             </th>
             <th className="text-left px-4 py-4 text-xs font-semibold text-gray-400 dark:text-white/30 uppercase tracking-wider">
-              Status
+              {d.colStatus || "Status"}
             </th>
             <th className="text-right px-6 py-4 text-xs font-semibold text-gray-400 dark:text-white/30 uppercase tracking-wider">
-              Actions
+              {d.colActions || "Actions"}
             </th>
           </tr>
         </thead>
@@ -122,17 +110,17 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                       <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-white/40">
                         <span className="flex items-center gap-1">
                           <span className="material-icons text-xs">bed</span>
-                          {property.beds} Beds
+                          {property.beds} {d.bedsLabel || "Beds"}
                         </span>
                         <span className="text-gray-200 dark:text-white/10">•</span>
                         <span className="flex items-center gap-1">
                           <span className="material-icons text-xs">bathtub</span>
-                          {property.baths} Baths
+                          {property.baths} {d.bathsLabel || "Baths"}
                         </span>
                         <span className="text-gray-200 dark:text-white/10">•</span>
                         <span className="flex items-center gap-1">
                           <span className="material-icons text-xs">square_foot</span>
-                          {property.size} sqft
+                          {property.size} {d.sqftLabel || "sqft"}
                         </span>
                       </div>
                     </div>
@@ -145,7 +133,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                     {formatPrice(property.price)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-white/40 mt-0.5">
-                    Monthly: {estimateMonthly(property.price)}
+                    {d.monthlyPrefix || "Monthly: "}{estimateMonthly(property.price)}
                   </p>
                 </td>
 
@@ -183,10 +171,10 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                     {isLoading
                       ? "..."
                       : property.is_featured
-                      ? "Featured"
+                      ? (d.featured || "Featured")
                       : property.action === "Buy"
-                      ? "For Sale"
-                      : "For Rent"}
+                      ? (d.statusForSale || "For Sale")
+                      : (d.statusForRent || "For Rent")}
                   </button>
                 </td>
 
@@ -219,7 +207,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
           <span className="material-icons text-5xl mb-3 block opacity-30">
             apartment
           </span>
-          <p className="font-medium">No properties found.</p>
+          <p className="font-medium">{d.noPropertiesFound || "No properties found."}</p>
         </div>
       )}
     </div>

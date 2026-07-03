@@ -34,9 +34,18 @@ export async function updateUserRole(
   userId: string,
   role: AppRole
 ): Promise<{ success: boolean; error?: string }> {
-  // 1. Actualizar la tabla user_roles con el cliente normal (respeta RLS)
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
+  // Medida de seguridad: impedir que un admin se quite el rol de admin a sí mismo
+  if (user && user.id === userId && role !== "admin") {
+    return {
+      success: false,
+      error: "You cannot remove or change your own administrator access for security reasons.",
+    };
+  }
+
+  // 1. Actualizar la tabla user_roles con el cliente normal (respeta RLS)
   const { error: roleError } = await supabase
     .from("user_roles")
     .update({ role, updated_at: new Date().toISOString() })

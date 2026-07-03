@@ -32,6 +32,7 @@ export default function UsersTable({ users, currentUserId }: UsersTableProps) {
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,6 +46,14 @@ export default function UsersTable({ users, currentUserId }: UsersTableProps) {
   }, []);
 
   const handleRoleSelection = (userId: string, dbRole: AppRole, label: string) => {
+    if (userId === currentUserId && dbRole !== "admin") {
+      setOpenDropdownId(null);
+      setErrorModalMessage(
+        "Medida de seguridad: No puedes quitarte ni rebajar tu propio rol de Administrador. Si necesitas modificar tus permisos, debe realizarlo otro administrador del sistema."
+      );
+      return;
+    }
+
     setSubRoles((prev) => ({ ...prev, [userId]: label }));
     setSuspended((prev) => ({ ...prev, [userId]: false }));
     setLocalRoles((prev) => ({ ...prev, [userId]: dbRole }));
@@ -57,12 +66,22 @@ export default function UsersTable({ users, currentUserId }: UsersTableProps) {
           ...prev,
           [userId]: users.find((u) => u.user_id === userId)?.role ?? "user",
         }));
+        if (result.error) {
+          setErrorModalMessage(result.error);
+        }
       }
       setLoadingId(null);
     });
   };
 
   const handleSuspendUser = (userId: string) => {
+    if (userId === currentUserId) {
+      setOpenDropdownId(null);
+      setErrorModalMessage(
+        "Medida de seguridad: No puedes suspender ni bloquear tu propia cuenta activa mientras te encuentras en sesión."
+      );
+      return;
+    }
     setSuspended((prev) => ({ ...prev, [userId]: true }));
     setOpenDropdownId(null);
   };
@@ -430,6 +449,36 @@ export default function UsersTable({ users, currentUserId }: UsersTableProps) {
                   Send Invite
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Security Error Modal */}
+      {errorModalMessage && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-white dark:bg-[#0e211e] rounded-2xl max-w-md w-full p-6 shadow-2xl border border-red-500/20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
+                <span className="material-icons text-red-500 text-xl">gpp_bad</span>
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">
+                  Protección y Seguridad
+                </h3>
+                <p className="text-xs text-red-500 font-medium">Acción restingida por seguridad</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-white/80 mb-6 leading-relaxed">
+              {errorModalMessage}
+            </p>
+            <div className="flex justify-end pt-4 border-t border-gray-100 dark:border-white/10">
+              <button
+                onClick={() => setErrorModalMessage(null)}
+                className="px-5 py-2 rounded-xl text-xs font-semibold bg-red-500 text-white hover:bg-red-600 cursor-pointer shadow-sm transition-all"
+              >
+                Entendido
+              </button>
             </div>
           </div>
         </div>

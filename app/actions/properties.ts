@@ -1,8 +1,19 @@
 "use server";
 
 import { supabase } from "@/lib/supabase";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { Property, PropertyAction, PropertyType } from "@/app/types/property";
 import { revalidatePath } from "next/cache";
+
+function getAdminSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+  const key =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    "";
+  return createAdminClient(url, key);
+}
 
 const PROPERTIES_PER_PAGE = 8;
 
@@ -160,4 +171,154 @@ export async function getPropertyBySlug(slug: string): Promise<Property | null> 
   }
 
   return (data as Property) ?? null;
+}
+
+/**
+ * Server-side function to fetch a single property by ID from Supabase.
+ */
+export async function getPropertyById(id: string): Promise<Property | null> {
+  const adminClient = getAdminSupabase();
+  const { data, error } = await adminClient
+    .from("properties")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error(`Error fetching property with id "${id}":`, error);
+    return null;
+  }
+
+  return (data as Property) ?? null;
+}
+
+/**
+ * Server Action to upload an image to Supabase Storage bucket 'property-images'.
+ */
+export async function uploadPropertyImage(formData: FormData): Promise<{
+  success: boolean;
+  url?: string;
+  error?: string;
+}> {
+  try {
+    const file = formData.get("file") as File | null;
+    if (!file) {
+      return { success: false, error: "No image provided" };
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+    const fileName = `${Date.now()}-${safeName}`;
+
+    const adminClient = getAdminSupabase();
+    const { data, error } = await adminClient.storage
+      .from("property-images")
+      .upload(fileName, buffer, {
+        contentType: file.type || "image/jpeg",
+        upsert: true,
+      });
+
+    if (error) {
+      console.error("Error uploading to storage:", error);
+      return { success: false, error: error.message };
+    }
+
+    const { data: publicUrlData } = adminClient.storage
+      .from("property-images")
+      .getPublicUrl(fileName);
+
+    return { success: true, url: publicUrlData.publicUrl };
+  } catch (err: any) {
+    console.error("Exception in uploadPropertyImage:", err);
+    return { success: false, error: err?.message || "Error uploading image" };
+  }
+}
+
+/**
+ * Helper to generate URL slug from title.
+ */
+function generateSlug(title: string): string {
+  const base = title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "");
+  return base ? `${base}-${Math.floor(1000 + Math.random() * 9000)}` : `property-${Date.now()}`;
+}
+
+/**
+ * Server Action to create a new property.
+ */
+export async function createProperty(
+  payload: Partial<Property>
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  try {
+    const adminClient = getAdminSupabase();
+
+    const title = payload.title || "Untitled Property";
+    const slug = payload.slug || generateSlug(title);
+
+    const insertData = {
+      ...payload,
+      title,
+      slug,
+      created_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await adminClient
+      .from("properties")
+      .insert([insertData])
+      .select("id")
+      .single();
+
+    if (error) {
+      console.error("Error creating property:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/");
+    return { success: true, id: data?.id };
+  } catch (err: any) {
+    console.error("Exception in createProperty:", err);
+    return { success: false, error: err?.message || "Failed to create property" };
+  }
+}
+
+/**
+ * Server Action to update an existing property.
+ */
+export async function updateProperty(
+  id: string,
+  payload: Partial<Property>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const adminClient = getAdminSupabase();
+
+    // Remove immutable fields if present
+    const { id: _id, created_at: _created, ...updateFields } = payload as any;
+
+    const { error } = await adminClient
+      .from("properties")
+      .update(updateFields)
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error updating property:", error);
+      return { success: false, error: error.message };
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/");
+    if (payload.slug) {
+      revalidatePath(`/propiedades/${payload.slug}`);
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error("Exception in updateProperty:", err);
+    return { success: false, error: err?.message || "Failed to update property" };
+  }
 }

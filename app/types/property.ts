@@ -11,9 +11,13 @@ export interface Property {
   lat: number;
   lng: number;
   badge: string;
-  type: "House" | "Apartment" | "Villa" | "Penthouse";
+  type: "House" | "Apartment" | "Villa" | "Penthouse" | "Commercial";
   action: "Buy" | "Rent";
   is_featured: boolean;
+  description?: string;
+  amenities?: string[];
+  year_built?: number;
+  parking?: number;
   created_at: string;
 }
 

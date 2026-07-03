@@ -1,0 +1,597 @@
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Property, PropertyAction, PropertyType } from "@/app/types/property";
+import { uploadPropertyImage, createProperty, updateProperty } from "@/app/actions/properties";
+
+interface PropertyFormProps {
+  initialData?: Property | null;
+}
+
+const AVAILABLE_AMENITIES = [
+  "Swimming Pool",
+  "Garden",
+  "Air Conditioning",
+  "Smart Home System",
+  "Central Heating & Cooling",
+  "Electric Vehicle Charging",
+  "Private Gym & Spa",
+  "24/7 Perimeter Security",
+];
+
+export default function PropertyForm({ initialData }: PropertyFormProps) {
+  const router = useRouter();
+  const isEdit = !!initialData;
+
+  const [title, setTitle] = useState(initialData?.title || "");
+  const [price, setPrice] = useState(initialData?.price ? String(initialData.price) : "");
+  const [action, setAction] = useState<PropertyAction>(initialData?.action || "Buy");
+  const [type, setType] = useState<PropertyType>(initialData?.type || "Apartment");
+  const [description, setDescription] = useState(initialData?.description || "");
+  const [address, setAddress] = useState(initialData?.address || "");
+  const [size, setSize] = useState(initialData?.size || "");
+  const [yearBuilt, setYearBuilt] = useState(initialData?.year_built ? String(initialData.year_built) : "");
+  const [beds, setBeds] = useState(initialData?.beds ?? 3);
+  const [baths, setBaths] = useState(initialData?.baths ?? 2);
+  const [parking, setParking] = useState(initialData?.parking ?? 1);
+  const [images, setImages] = useState<string[]>(initialData?.images || []);
+  const [amenities, setAmenities] = useState<string[]>(initialData?.amenities || ["Garden"]);
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    setErrorMessage("");
+
+    try {
+      const newImages = [...images];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await uploadPropertyImage(formData);
+        if (res.success && res.url) {
+          newImages.push(res.url);
+        } else {
+          setErrorMessage(`Error uploading ${file.name}: ${res.error}`);
+        }
+      }
+      setImages(newImages);
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to upload image(s)");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setImages(images.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const toggleAmenity = (item: string) => {
+    if (amenities.includes(item)) {
+      setAmenities(amenities.filter((a) => a !== item));
+    } else {
+      setAmenities([...amenities, item]);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !price) {
+      setErrorMessage("Please fill in mandatory fields (Title and Price).");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    const payload: Partial<Property> = {
+      title,
+      price: Number(price) || 0,
+      action,
+      type,
+      description,
+      address: address || "Specified Address",
+      size: size || "2500",
+      year_built: yearBuilt ? Number(yearBuilt) : undefined,
+      beds,
+      baths,
+      parking,
+      images: images.length > 0 ? images : ["https://lh3.googleusercontent.com/aida-public/AB6AXuBZW0qbk7lfvNbdW7E2-JlNvoGiYxd_IFtXs-LfvSnOmMtH8ioaZBs2p82ENkCdRf_ix_zKpdGhOcuHfniuiBJrRDyErAFReMdAHvRnerfSzOyzSUbKvgYTybWysd6hjrQ4ZHMu3lMROjFcEx5IowvtKFZJy7Wv_AnfQ-q-B48VHLKzKhOvavGIGfN-psB9c2CO70k5peXj1HbAL-Lg-aGaK3jNgUS3Dh3V_zz6GKj4inq3dsGTc_tJsANMwh0G0YovWbq0luzYzNo"],
+      amenities,
+      lat: initialData?.lat || 37.4419,
+      lng: initialData?.lng || -122.143,
+      badge: initialData?.badge || "New",
+      is_featured: initialData?.is_featured ?? false,
+    };
+
+    try {
+      if (isEdit && initialData?.id) {
+        const res = await updateProperty(initialData.id, payload);
+        if (!res.success) {
+          setErrorMessage(res.error || "Failed to update property.");
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        const res = await createProperty(payload);
+        if (!res.success) {
+          setErrorMessage(res.error || "Failed to create property.");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err: any) {
+      setErrorMessage(err.message || "An unexpected error occurred.");
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto py-6">
+      <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-200 dark:border-white/10 pb-8">
+        <div className="space-y-4">
+          <nav aria-label="Breadcrumb" className="flex">
+            <ol className="flex items-center space-x-2 text-sm text-gray-500 dark:text-white/40 font-medium font-sf">
+              <li>
+                <Link href="/dashboard" className="hover:text-mosque transition-colors">
+                  Properties
+                </Link>
+              </li>
+              <li>
+                <span className="material-icons text-xs text-gray-400">chevron_right</span>
+              </li>
+              <li aria-current="page" className="text-nordic dark:text-white">
+                {isEdit ? "Edit Property" : "Add New"}
+              </li>
+            </ol>
+          </nav>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-nordic dark:text-white tracking-tight mb-2">
+              {isEdit ? "Edit Property" : "Add New Property"}
+            </h1>
+            <p className="text-base text-gray-500 dark:text-white/50 max-w-2xl font-normal font-sf">
+              Fill in the details below to {isEdit ? "update the" : "create a new"} listing. Fields marked with * are mandatory.
+            </p>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="px-5 py-2.5 rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white hover:bg-gray-50 dark:hover:bg-white/10 transition-colors font-medium font-sf text-sm cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="property-form"
+            disabled={isSubmitting}
+            className="px-5 py-2.5 rounded-lg bg-mosque hover:bg-nordic dark:hover:bg-[#11302b] text-white font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-sf text-sm cursor-pointer disabled:opacity-50"
+          >
+            <span className="material-icons text-sm">save</span>
+            {isSubmitting ? "Saving..." : "Save Property"}
+          </button>
+        </div>
+      </header>
+
+      {errorMessage && (
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm font-sf">
+          {errorMessage}
+        </div>
+      )}
+
+      <form id="property-form" onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        {/* Left Column (8 cols) */}
+        <div className="xl:col-span-8 space-y-8">
+          {/* Basic Information Box */}
+          <div className="bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+            <div className="px-8 py-6 border-b border-hint-green/30 dark:border-white/10 flex items-center gap-3 bg-gradient-to-r from-hint-green/10 dark:from-white/5 to-transparent">
+              <div className="w-8 h-8 rounded-full bg-hint-green dark:bg-mosque/20 flex items-center justify-center text-nordic dark:text-mosque">
+                <span className="material-icons text-lg">info</span>
+              </div>
+              <h2 className="text-xl font-bold text-nordic dark:text-white">Basic Information</h2>
+            </div>
+            <div className="p-8 space-y-6">
+              <div className="group">
+                <label htmlFor="title" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">
+                  Property Title <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="title"
+                  type="text"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Modern Penthouse with Ocean View"
+                  className="w-full text-base px-4 py-2.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sf"
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <label htmlFor="price" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">
+                    Price <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-sf text-sm">$</span>
+                    <input
+                      id="price"
+                      type="number"
+                      required
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full pl-7 pr-4 py-2.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-medium font-sf"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="status" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">
+                    Status
+                  </label>
+                  <select
+                    id="status"
+                    value={action}
+                    onChange={(e) => setAction(e.target.value as PropertyAction)}
+                    className="w-full px-4 py-2.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0f2420] text-nordic dark:text-white focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-sf cursor-pointer"
+                  >
+                    <option value="Buy">For Sale</option>
+                    <option value="Rent">For Rent</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="type" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">
+                    Property Type
+                  </label>
+                  <select
+                    id="type"
+                    value={type}
+                    onChange={(e) => setType(e.target.value as PropertyType)}
+                    className="w-full px-4 py-2.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0f2420] text-nordic dark:text-white focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-sf cursor-pointer"
+                  >
+                    <option value="Apartment">Apartment</option>
+                    <option value="House">House</option>
+                    <option value="Villa">Villa</option>
+                    <option value="Penthouse">Penthouse</option>
+                    <option value="Commercial">Commercial</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Description Box */}
+          <div className="bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+            <div className="px-8 py-6 border-b border-hint-green/30 dark:border-white/10 flex items-center gap-3 bg-gradient-to-r from-hint-green/10 dark:from-white/5 to-transparent">
+              <div className="w-8 h-8 rounded-full bg-hint-green dark:bg-mosque/20 flex items-center justify-center text-nordic dark:text-mosque">
+                <span className="material-icons text-lg">description</span>
+              </div>
+              <h2 className="text-xl font-bold text-nordic dark:text-white">Description</h2>
+            </div>
+            <div className="p-8">
+              <div className="mb-3 flex gap-2 border-b border-gray-100 dark:border-white/10 pb-2">
+                <button type="button" className="p-1.5 text-gray-400 hover:text-nordic dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 rounded transition-colors">
+                  <span className="material-icons text-lg">format_bold</span>
+                </button>
+                <button type="button" className="p-1.5 text-gray-400 hover:text-nordic dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 rounded transition-colors">
+                  <span className="material-icons text-lg">format_italic</span>
+                </button>
+                <button type="button" className="p-1.5 text-gray-400 hover:text-nordic dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 rounded transition-colors">
+                  <span className="material-icons text-lg">format_list_bulleted</span>
+                </button>
+              </div>
+              <textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={2000}
+                placeholder="Describe the property features, neighborhood, and unique selling points..."
+                className="w-full px-4 py-3 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-sf leading-relaxed resize-y min-h-[200px]"
+              />
+              <div className="mt-2 text-right text-xs text-gray-400 font-sf">
+                {description.length} / 2000 characters
+              </div>
+            </div>
+          </div>
+
+          {/* Gallery Box */}
+          <div className="bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+            <div className="px-8 py-6 border-b border-hint-green/30 dark:border-white/10 flex justify-between items-center bg-gradient-to-r from-hint-green/10 dark:from-white/5 to-transparent">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-hint-green dark:bg-mosque/20 flex items-center justify-center text-nordic dark:text-mosque">
+                  <span className="material-icons text-lg">image</span>
+                </div>
+                <h2 className="text-xl font-bold text-nordic dark:text-white">Gallery</h2>
+              </div>
+              <span className="text-xs font-medium text-gray-500 dark:text-white/40 bg-gray-100 dark:bg-white/10 px-2 py-1 rounded font-sf">
+                JPG, PNG, WEBP
+              </span>
+            </div>
+            <div className="p-8">
+              <label className="relative border-2 border-dashed border-gray-300 dark:border-white/20 rounded-xl bg-gray-50/50 dark:bg-white/2 p-10 text-center hover:bg-hint-green/10 dark:hover:bg-mosque/5 hover:border-mosque/40 transition-colors cursor-pointer group block">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 disabled:cursor-not-allowed"
+                />
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  <div className="w-12 h-12 bg-white dark:bg-white/10 rounded-full flex items-center justify-center shadow-sm text-mosque group-hover:scale-110 transition-transform duration-300">
+                    <span className="material-icons text-2xl">
+                      {isUploading ? "sync" : "cloud_upload"}
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-base font-medium text-nordic dark:text-white font-sf">
+                      {isUploading ? "Uploading images to Supabase..." : "Click or drag images here"}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-white/40 font-sf">Max file size 5MB per image</p>
+                  </div>
+                </div>
+              </label>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+                {images.map((url, idx) => (
+                  <div key={idx} className="aspect-square rounded-lg overflow-hidden relative group shadow-sm bg-gray-100 dark:bg-white/5">
+                    <img src={url} alt={`Gallery item ${idx + 1}`} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-nordic/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="w-8 h-8 rounded-full bg-white text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors cursor-pointer"
+                        title="Delete image"
+                      >
+                        <span className="material-icons text-sm">delete</span>
+                      </button>
+                    </div>
+                    {idx === 0 && (
+                      <span className="absolute top-2 left-2 bg-mosque text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm font-sf uppercase tracking-wider">
+                        Main
+                      </span>
+                    )}
+                  </div>
+                ))}
+
+                <label className="aspect-square rounded-lg border border-dashed border-gray-300 dark:border-white/20 flex flex-col items-center justify-center text-gray-400 dark:text-white/40 hover:text-mosque hover:border-mosque hover:bg-hint-green/20 dark:hover:bg-mosque/10 transition-all group cursor-pointer">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploading}
+                    className="hidden"
+                  />
+                  <span className="material-icons group-hover:scale-110 transition-transform">add</span>
+                  <span className="text-xs mt-1 font-medium font-sf">Add More</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column (4 cols) */}
+        <div className="xl:col-span-4 space-y-8">
+          {/* Location Box */}
+          <div className="bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+            <div className="px-6 py-4 border-b border-hint-green/30 dark:border-white/10 flex items-center gap-3 bg-gradient-to-r from-hint-green/10 dark:from-white/5 to-transparent">
+              <div className="w-8 h-8 rounded-full bg-hint-green dark:bg-mosque/20 flex items-center justify-center text-nordic dark:text-mosque">
+                <span className="material-icons text-lg">place</span>
+              </div>
+              <h2 className="text-lg font-bold text-nordic dark:text-white">Location</h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label htmlFor="location" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">
+                  Address
+                </label>
+                <input
+                  id="location"
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Street Address, City, Zip"
+                  className="w-full px-4 py-2.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sf"
+                />
+              </div>
+              <div className="relative h-48 w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 group">
+                <img
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS55FY7gfArnlTpNsdabJk9nBO5uQJgOwIsl8beO34JRZ9dMmjLoIkTuTUO72Y9L5tUmQqTReQWebUWadAWwLusGmRQiIict5sqY--yRaOxuYpTzfR4vv4RKh1ex6oxY64e0kbSeMudNO6pv-gG0WzVWs-pDfvQm5IoTQ1mT-tAV49LDkXAHZl317M1-D7eZw3N8o2ExKWTgg6oMAXOFVnkApIqnb7TZHekwSw8pWQxpJV2EKI8EQKQbQXJaSbjN8gB1n8b-ueWj8"
+                  alt="Map view of city streets"
+                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500"
+                />
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span className="bg-white/90 dark:bg-nordic/90 text-nordic dark:text-white px-3 py-1.5 rounded shadow-sm backdrop-blur-sm text-xs font-bold font-sf flex items-center gap-1">
+                    <span className="material-icons text-sm text-mosque">map</span> Preview
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Details Box */}
+          <div className="bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden sticky top-24">
+            <div className="px-6 py-4 border-b border-hint-green/30 dark:border-white/10 flex items-center gap-3 bg-gradient-to-r from-hint-green/10 dark:from-white/5 to-transparent">
+              <div className="w-8 h-8 rounded-full bg-hint-green dark:bg-mosque/20 flex items-center justify-center text-nordic dark:text-mosque">
+                <span className="material-icons text-lg">straighten</span>
+              </div>
+              <h2 className="text-lg font-bold text-nordic dark:text-white">Details</h2>
+            </div>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="group">
+                  <label htmlFor="area" className="text-xs text-gray-500 dark:text-white/40 font-medium font-sf mb-1 block">
+                    Area (sqft / m²)
+                  </label>
+                  <input
+                    id="area"
+                    type="text"
+                    value={size}
+                    onChange={(e) => setSize(e.target.value)}
+                    placeholder="0"
+                    className="w-full text-left px-3 py-2 rounded border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-nordic dark:text-white focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sf text-sm"
+                  />
+                </div>
+                <div className="group">
+                  <label htmlFor="year" className="text-xs text-gray-500 dark:text-white/40 font-medium font-sf mb-1 block">
+                    Year Built
+                  </label>
+                  <input
+                    id="year"
+                    type="number"
+                    value={yearBuilt}
+                    onChange={(e) => setYearBuilt(e.target.value)}
+                    placeholder="YYYY"
+                    className="w-full text-left px-3 py-2 rounded border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-nordic dark:text-white focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sf text-sm"
+                  />
+                </div>
+              </div>
+              <hr className="border-gray-100 dark:border-white/10" />
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-nordic dark:text-white font-sf flex items-center gap-2">
+                    <span className="material-icons text-gray-400 text-sm">bed</span> Bedrooms
+                  </label>
+                  <div className="flex items-center border border-gray-200 dark:border-white/10 rounded-md overflow-hidden bg-white dark:bg-white/5 shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => setBeds(Math.max(0, beds - 1))}
+                      className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/10 text-gray-600 dark:text-white transition-colors border-r border-gray-100 dark:border-white/10"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="text"
+                      readOnly
+                      value={beds}
+                      className="w-10 text-center border-none bg-transparent text-nordic dark:text-white p-0 focus:ring-0 text-sm font-medium font-sf"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setBeds(beds + 1)}
+                      className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/10 text-gray-600 dark:text-white transition-colors border-l border-gray-100 dark:border-white/10"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-nordic dark:text-white font-sf flex items-center gap-2">
+                    <span className="material-icons text-gray-400 text-sm">shower</span> Bathrooms
+                  </label>
+                  <div className="flex items-center border border-gray-200 dark:border-white/10 rounded-md overflow-hidden bg-white dark:bg-white/5 shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => setBaths(Math.max(0, baths - 1))}
+                      className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/10 text-gray-600 dark:text-white transition-colors border-r border-gray-100 dark:border-white/10"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="text"
+                      readOnly
+                      value={baths}
+                      className="w-10 text-center border-none bg-transparent text-nordic dark:text-white p-0 focus:ring-0 text-sm font-medium font-sf"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setBaths(baths + 1)}
+                      className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/10 text-gray-600 dark:text-white transition-colors border-l border-gray-100 dark:border-white/10"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-nordic dark:text-white font-sf flex items-center gap-2">
+                    <span className="material-icons text-gray-400 text-sm">directions_car</span> Parking
+                  </label>
+                  <div className="flex items-center border border-gray-200 dark:border-white/10 rounded-md overflow-hidden bg-white dark:bg-white/5 shadow-sm">
+                    <button
+                      type="button"
+                      onClick={() => setParking(Math.max(0, parking - 1))}
+                      className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/10 text-gray-600 dark:text-white transition-colors border-r border-gray-100 dark:border-white/10"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="text"
+                      readOnly
+                      value={parking}
+                      className="w-10 text-center border-none bg-transparent text-nordic dark:text-white p-0 focus:ring-0 text-sm font-medium font-sf"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setParking(parking + 1)}
+                      className="w-8 h-8 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/10 text-gray-600 dark:text-white transition-colors border-l border-gray-100 dark:border-white/10"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <hr className="border-gray-100 dark:border-white/10" />
+
+              <div>
+                <h3 className="font-bold text-nordic dark:text-white mb-3 font-sf uppercase tracking-wider text-xs text-gray-500 dark:text-white/40">
+                  Amenities
+                </h3>
+                <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                  {AVAILABLE_AMENITIES.map((item) => {
+                    const isChecked = amenities.includes(item);
+                    return (
+                      <label key={item} className="flex items-center gap-2.5 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleAmenity(item)}
+                          className="w-4 h-4 text-mosque border-gray-300 dark:border-white/20 rounded focus:ring-mosque bg-transparent cursor-pointer"
+                        />
+                        <span className="text-sm text-gray-700 dark:text-white/80 font-sf group-hover:text-nordic dark:group-hover:text-white transition-colors">
+                          {item}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Fixed Action Bar */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-[#0a1a17] border-t border-gray-200 dark:border-white/10 shadow-xl md:hidden z-40 flex gap-3">
+          <button
+            type="button"
+            onClick={() => router.push("/dashboard")}
+            className="flex-1 py-3 rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white font-medium font-sf"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex-1 py-3 rounded-lg bg-mosque text-white font-medium font-sf flex justify-center items-center gap-2 disabled:opacity-50"
+          >
+            {isSubmitting ? "Saving..." : "Save"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}

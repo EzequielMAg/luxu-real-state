@@ -29,13 +29,15 @@ export default async function DashboardPage({
     page: currentPage,
     limit: PAGE_SIZE,
     search,
+    includeInactive: true,
   });
 
-  // Stats: para las cards usamos getProperties sin filtro
-  const { total: totalAll } = await getProperties({ page: 1, limit: 100 });
-  const { properties: allForStats } = await getProperties({ page: 1, limit: 100 });
+  // Stats: para las cards usamos getProperties con includeInactive
+  const { total: totalAll } = await getProperties({ page: 1, limit: 100, includeInactive: true });
+  const { properties: allForStats } = await getProperties({ page: 1, limit: 100, includeInactive: true });
+  const activeCount = allForStats.filter((p) => p.is_active !== false).length;
+  const inactiveCount = allForStats.filter((p) => p.is_active === false).length;
   const featuredCount = allForStats.filter((p) => p.is_featured).length;
-  const buyCount = allForStats.filter((p) => p.action === "Buy").length;
 
   const from = (currentPage - 1) * PAGE_SIZE + 1;
   const to = Math.min(currentPage * PAGE_SIZE, total);
@@ -53,22 +55,22 @@ export default async function DashboardPage({
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-medium text-gray-700 dark:text-white/70 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-all">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-medium text-gray-700 dark:text-white/70 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-all cursor-pointer">
             <span className="material-icons text-base">tune</span>
-            Filter
+            {d?.filterBtn ?? "Filter"}
           </button>
           <Link
             href="/dashboard/properties/create"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-mosque text-white text-sm font-semibold hover:bg-mosque/90 transition-all shadow-sm shadow-mosque/20"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-mosque text-white text-sm font-semibold hover:bg-mosque/90 transition-all shadow-sm shadow-mosque/20 cursor-pointer"
           >
             <span className="material-icons text-base">add</span>
-            Add New Property
+            {d?.addNewProperty ?? "Add New Property"}
           </Link>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           icon="grid_view"
           label={d?.totalProperties ?? "Total Listings"}
@@ -78,17 +80,24 @@ export default async function DashboardPage({
         />
         <StatCard
           icon="check_circle"
-          label={d?.featured ?? "Featured"}
-          value={featuredCount}
+          label={d?.activeListings ?? "Active Listings"}
+          value={activeCount}
           iconBg="bg-green-50 dark:bg-green-900/20"
           iconColor="text-green-600 dark:text-green-400"
         />
         <StatCard
-          icon="sell"
-          label="For Sale"
-          value={buyCount}
-          iconBg="bg-orange-50 dark:bg-orange-900/20"
-          iconColor="text-orange-500 dark:text-orange-400"
+          icon="visibility_off"
+          label={d?.inactiveListings ?? "Inactive Listings"}
+          value={inactiveCount}
+          iconBg="bg-red-50 dark:bg-red-900/20"
+          iconColor="text-red-500 dark:text-red-400"
+        />
+        <StatCard
+          icon="star"
+          label={d?.featured ?? "Featured"}
+          value={featuredCount}
+          iconBg="bg-amber-50 dark:bg-amber-900/20"
+          iconColor="text-amber-500 dark:text-amber-400"
         />
       </div>
 
@@ -99,19 +108,19 @@ export default async function DashboardPage({
         {/* Pagination Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-white/5">
           <p className="text-sm text-gray-500 dark:text-white/40">
-            Showing{" "}
+            {d?.showing ?? "Showing"}{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {from}
             </span>{" "}
-            to{" "}
+            {d?.to ?? "to"}{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {to}
             </span>{" "}
-            of{" "}
+            {d?.of ?? "of"}{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {total}
             </span>{" "}
-            results
+            {d?.results ?? "results"}
           </p>
 
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -123,7 +132,7 @@ export default async function DashboardPage({
                   ? "border-gray-100 dark:border-white/5 text-gray-300 dark:text-white/20 cursor-not-allowed pointer-events-none"
                   : "border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5"
               }`}
-              title="Previous page"
+              title={d?.prevPage ?? "Previous page"}
             >
               <span className="material-icons text-sm">chevron_left</span>
             </a>
@@ -150,7 +159,7 @@ export default async function DashboardPage({
                   ? "border-gray-100 dark:border-white/5 text-gray-300 dark:text-white/20 cursor-not-allowed pointer-events-none"
                   : "border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5"
               }`}
-              title="Next page"
+              title={d?.nextPage ?? "Next page"}
             >
               <span className="material-icons text-sm">chevron_right</span>
             </a>

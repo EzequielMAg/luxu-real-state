@@ -29,6 +29,7 @@ interface GetPropertiesParams {
   beds?: number;
   baths?: number;
   amenities?: string[];
+  includeInactive?: boolean;
 }
 
 interface GetPropertiesResult {
@@ -52,6 +53,7 @@ export async function getProperties({
   beds,
   baths,
   amenities,
+  includeInactive = false,
 }: GetPropertiesParams = {}): Promise<GetPropertiesResult> {
   const pageSize = limit ?? PROPERTIES_PER_PAGE;
   const from = (page - 1) * pageSize;
@@ -96,6 +98,10 @@ export async function getProperties({
     query = query.contains("amenities", amenities);
   }
 
+  if (!includeInactive) {
+    query = query.neq("is_active", false);
+  }
+
   query = query.range(from, to);
 
   const { data, count, error } = await query;
@@ -124,6 +130,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
     .from("properties")
     .select("*")
     .eq("is_featured", true)
+    .neq("is_active", false)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -141,7 +148,8 @@ export async function togglePropertyFeatured(
   propertyId: string,
   currentFeaturedStatus: boolean
 ): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
+  const adminClient = getAdminSupabase();
+  const { error } = await adminClient
     .from("properties")
     .update({ is_featured: !currentFeaturedStatus })
     .eq("id", propertyId);
@@ -151,7 +159,38 @@ export async function togglePropertyFeatured(
     return { success: false, error: error.message };
   }
 
-  // Revalidate the home page so lists are updated immediately
+  // Revalidate all pages so lists are updated immediately
+  revalidatePath("/", "layout");
+  revalidatePath("/dashboard", "layout");
+  return { success: true };
+}
+
+/**
+ * Server Action to toggle the 'is_active' status of a property (activate / deactivate).
+ */
+export async function togglePropertyActive(
+  propertyId: string,
+  currentActiveStatus: boolean
+): Promise<{ success: boolean; error?: string }> {
+  const adminClient = getAdminSupabase();
+  const newStatus = !currentActiveStatus;
+
+  const updateData: any = { is_active: newStatus };
+  if (!newStatus) {
+    updateData.is_featured = false;
+  }
+
+  const { error } = await adminClient
+    .from("properties")
+    .update(updateData)
+    .eq("id", propertyId);
+
+  if (error) {
+    console.error("Error toggling active status:", error);
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/dashboard");
   revalidatePath("/");
   return { success: true };
 }
@@ -282,6 +321,7 @@ export async function createProperty(
       ...payload,
       title,
       slug,
+      is_active: payload.is_active !== undefined ? payload.is_active : true,
       created_at: new Date().toISOString(),
     };
 

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Property } from "@/app/types/property";
-import { togglePropertyFeatured } from "@/app/actions/properties";
+import { togglePropertyFeatured, togglePropertyActive } from "@/app/actions/properties";
 import { useTranslation } from "@/app/i18n/I18nProvider";
 
 interface PropertiesTableProps {
@@ -40,6 +40,8 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
   const d = (t as any).dashboard || {};
   const [isPending, startTransition] = useTransition();
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [activeLoadingId, setActiveLoadingId] = useState<string | null>(null);
+  const [confirmingProperty, setConfirmingProperty] = useState<Property | null>(null);
 
   const searchParams = useSearchParams();
   const highlightedId = searchParams?.get("highlight");
@@ -48,6 +50,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
+  const [showSoftDeleteInfo, setShowSoftDeleteInfo] = useState(false);
 
   useEffect(() => {
     if (successType) {
@@ -85,6 +88,43 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
     startTransition(async () => {
       await togglePropertyFeatured(property.id, property.is_featured);
       setLoadingId(null);
+    });
+  };
+
+  const handleToggleActive = (property: Property) => {
+    setShowSoftDeleteInfo(false);
+    setConfirmingProperty(property);
+  };
+
+  const executeToggleActive = () => {
+    if (!confirmingProperty) return;
+    const prop = confirmingProperty;
+    const isDeactivating = prop.is_active !== false;
+
+    setConfirmingProperty(null);
+    setShowSoftDeleteInfo(false);
+    setActiveLoadingId(prop.id);
+    startTransition(async () => {
+      await togglePropertyActive(prop.id, prop.is_active !== false);
+      setActiveLoadingId(null);
+
+      // Resaltado de color y scroll hacia la propiedad modificada
+      setActiveHighlightId(prop.id);
+      const el = document.getElementById(`property-row-${prop.id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      setTimeout(() => {
+        setActiveHighlightId(null);
+      }, 6000);
+
+      setSuccessMessage(
+        isDeactivating
+          ? (d.successDeactivated || "La propiedad ha sido desactivada y oculta del catálogo público.")
+          : (d.successReactivated || "La propiedad ha sido reactivada y está visible en el catálogo.")
+      );
+      setShowSuccessModal(true);
+      setTimeout(() => setShowSuccessModal(false), 6000);
     });
   };
 
@@ -184,43 +224,50 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
 
                 {/* Status Badge */}
                 <td className="px-4 py-4">
-                  <button
-                    onClick={() => handleToggleFeatured(property)}
-                    disabled={isLoading}
-                    title={
-                      property.is_featured
-                        ? "Click to unfeature"
-                        : "Click to feature"
-                    }
-                    className={`
-                      inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer
-                      ${
+                  {property.is_active === false ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                      {d.statusInactive || "Desactivada"}
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => handleToggleFeatured(property)}
+                      disabled={isLoading}
+                      title={
                         property.is_featured
-                          ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300"
-                          : property.action === "Buy"
-                          ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                          : "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300"
+                          ? "Click to unfeature"
+                          : "Click to feature"
                       }
-                      ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
-                    `}
-                  >
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full ${
-                        property.is_featured
-                          ? "bg-green-500"
-                          : property.action === "Buy"
-                          ? "bg-blue-500"
-                          : "bg-amber-500"
-                      }`}
-                    />
-                    {isLoading
-                      ? "..."
-                      : property.is_featured
-                      ? (d.featured || "Featured")
-                      : property.action === "Buy"
-                      ? (d.statusForSale || "For Sale")
-                      : (d.statusForRent || "For Rent")}
-                  </button>
+                      className={`
+                        inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer
+                        ${
+                          property.is_featured
+                            ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300"
+                            : property.action === "Buy"
+                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                            : "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300"
+                        }
+                        ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:scale-105"}
+                      `}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          property.is_featured
+                            ? "bg-green-500"
+                            : property.action === "Buy"
+                            ? "bg-blue-500"
+                            : "bg-amber-500"
+                        }`}
+                      />
+                      {isLoading
+                        ? "..."
+                        : property.is_featured
+                        ? (d.featured || "Featured")
+                        : property.action === "Buy"
+                        ? (d.statusForSale || "For Sale")
+                        : (d.statusForRent || "For Rent")}
+                    </button>
+                  )}
                 </td>
 
                 {/* Actions */}
@@ -228,16 +275,28 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                   <div className="flex items-center justify-end gap-2">
                     <Link
                       href={`/dashboard/properties/${property.id}/edit`}
-                      title="Edit property"
+                      title={d.editPropertyTooltip || "Edit property"}
                       className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-mosque dark:hover:text-[#4db8a0] hover:bg-mosque/5 transition-all cursor-pointer"
                     >
                       <span className="material-icons text-base">edit</span>
                     </Link>
                     <button
-                      title="Delete property"
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all cursor-pointer"
+                      onClick={() => handleToggleActive(property)}
+                      disabled={isPending && activeLoadingId === property.id}
+                      title={property.is_active === false ? (d.reactivateTooltip || "Reactivar propiedad") : (d.deactivateTooltip || "Desactivar propiedad")}
+                      className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all cursor-pointer ${
+                        property.is_active === false
+                          ? "text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
+                          : "text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
+                      }`}
                     >
-                      <span className="material-icons text-base">delete_outline</span>
+                      <span className={`material-icons text-base ${isPending && activeLoadingId === property.id ? "animate-spin" : ""}`}>
+                        {isPending && activeLoadingId === property.id
+                          ? "sync"
+                          : property.is_active === false
+                          ? "restore_from_trash"
+                          : "delete_outline"}
+                      </span>
                     </button>
                   </div>
                 </td>
@@ -277,6 +336,113 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
           >
             <span className="material-icons text-base">close</span>
           </button>
+        </div>
+      )}
+
+      {/* Custom Luxury Confirmation Modal */}
+      {confirmingProperty && (
+        <div
+          onClick={() => setConfirmingProperty(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-[#0a1a17] border border-gray-200 dark:border-white/10 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-scale-up text-left relative overflow-hidden cursor-default"
+          >
+            {/* Top decorative glow */}
+            <div
+              className={`absolute top-0 left-0 right-0 h-1.5 ${
+                confirmingProperty.is_active !== false
+                  ? "bg-gradient-to-r from-amber-500 to-red-500"
+                  : "bg-gradient-to-r from-mosque to-[#4db8a0]"
+              }`}
+            />
+
+            <div className="flex items-start gap-4 mb-5 mt-2">
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-inner ${
+                  confirmingProperty.is_active !== false
+                    ? "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
+                    : "bg-mosque/15 dark:bg-mosque/30 text-mosque dark:text-[#4db8a0]"
+                }`}
+              >
+                <span className="material-icons text-2xl">
+                  {confirmingProperty.is_active !== false ? "warning_amber" : "check_circle"}
+                </span>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white font-sf">
+                  {confirmingProperty.is_active !== false
+                    ? (d.modalDeactivateTitle || "¿Desactivar propiedad?")
+                    : (d.modalReactivateTitle || "¿Reactivar propiedad?")}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-white/70 mt-1.5 font-sf leading-relaxed">
+                  {confirmingProperty.is_active !== false ? (
+                    <>
+                      {d.modalDeactivateDesc1 || "Estás a punto de ocultar "}
+                      <strong className="text-gray-900 dark:text-white">{confirmingProperty.title}</strong>
+                      {d.modalDeactivateDesc2 || " del catálogo público. Dejará de aparecer en las búsquedas y en la pantalla principal, pero podrás reactivarla en cualquier momento desde este panel."}
+                    </>
+                  ) : (
+                    <>
+                      {d.modalReactivateDesc1 || "Estás a punto de publicar nuevamente "}
+                      <strong className="text-gray-900 dark:text-white">{confirmingProperty.title}</strong>
+                      {d.modalReactivateDesc2 || ". Volverá a estar visible de forma inmediata en el catálogo y en los resultados de búsqueda."}
+                    </>
+                  )}
+                </p>
+
+                {/* Soft Delete Explanation Accordion / Box */}
+                <div className="mt-4 bg-gray-50 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 rounded-xl p-3 text-xs text-gray-600 dark:text-white/70">
+                  <button
+                    type="button"
+                    onClick={() => setShowSoftDeleteInfo(!showSoftDeleteInfo)}
+                    className="w-full flex items-center justify-between font-bold text-gray-800 dark:text-white hover:text-mosque dark:hover:text-[#4db8a0] transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <span className="material-icons text-sm text-mosque dark:text-[#4db8a0]">info</span>
+                      {d.softDeleteInfoBtn || "¿Qué es la baja lógica (Soft Delete)?"}
+                    </span>
+                    <span className="material-icons text-sm">{showSoftDeleteInfo ? "expand_less" : "expand_more"}</span>
+                  </button>
+                  {showSoftDeleteInfo && (
+                    <p className="mt-2.5 leading-relaxed pt-2 border-t border-gray-200/40 dark:border-white/5 animate-fade-in text-gray-600 dark:text-white/60">
+                      {d.softDeleteInfoText || "Para proteger el historial, estadísticas y referencias de la propiedad, aplicamos una baja lógica en la base de datos (Soft Delete). La propiedad no se borra permanentemente, sino que cambia su estado a inactivo, ocultándose del catálogo público para proteger tu información."}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100 dark:border-white/5">
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmingProperty(null);
+                  setShowSoftDeleteInfo(false);
+                }}
+                className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 font-semibold text-sm transition-all cursor-pointer font-sf"
+              >
+                {d.modalCancelBtn || "Cancelar"}
+              </button>
+              <button
+                type="button"
+                onClick={executeToggleActive}
+                className={`px-5 py-2.5 rounded-xl text-white font-semibold text-sm shadow-lg transition-all flex items-center gap-2 cursor-pointer font-sf ${
+                  confirmingProperty.is_active !== false
+                    ? "bg-amber-600 hover:bg-amber-700 shadow-amber-600/20"
+                    : "bg-mosque hover:bg-mosque/90 shadow-mosque/20"
+                }`}
+              >
+                <span className="material-icons text-base">
+                  {confirmingProperty.is_active !== false ? "visibility_off" : "visibility"}
+                </span>
+                {confirmingProperty.is_active !== false
+                  ? (d.modalDeactivateBtn || "Desactivar ahora")
+                  : (d.modalReactivateBtn || "Reactivar ahora")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -18,6 +18,7 @@ export interface Property {
   amenities?: string[];
   year_built?: number;
   parking?: number;
+  is_active?: boolean;
   created_at: string;
 }
 

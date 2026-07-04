@@ -237,6 +237,9 @@
     "errorReqPrice": "Ingresa un precio válido mayor a 0.",
     "errorReqAddress": "La dirección es obligatoria para publicar.",
     "errorReqArea": "El área es obligatoria para publicar.",
-    "errorReqImages": "Debes subir al menos una imagen para publicar."
+    "errorReqImages": "Debes subir al menos una imagen para publicar.",
+    "geocodeButton": "Buscar",
+    "geocoding": "Buscando...",
+    "geocodeConfirmed": "Ubicación confirmada"
   }
 }

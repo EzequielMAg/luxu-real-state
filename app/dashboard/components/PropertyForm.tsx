@@ -34,6 +34,8 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
   const [type, setType] = useState<PropertyType>(initialData?.type || "Apartment");
   const [description, setDescription] = useState(initialData?.description || "");
   const [address, setAddress] = useState(initialData?.address || "");
+  const [lat, setLat] = useState<number | null>(initialData?.lat ?? null);
+  const [lng, setLng] = useState<number | null>(initialData?.lng ?? null);
   const [size, setSize] = useState(initialData?.size || "");
   const [yearBuilt, setYearBuilt] = useState(initialData?.year_built ? String(initialData.year_built) : "");
   const [beds, setBeds] = useState(initialData?.beds ?? 0);
@@ -42,10 +44,47 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
   const [images, setImages] = useState<string[]>(initialData?.images || []);
   const [amenities, setAmenities] = useState<string[]>(initialData?.amenities || []);
 
+  // Geocoding state
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [geocodeResult, setGeocodeResult] = useState<{ display_name: string; lat: number; lng: number } | null>(
+    initialData?.lat && initialData?.lng
+      ? { display_name: initialData.address, lat: initialData.lat, lng: initialData.lng }
+      : null
+  );
+  const [geocodeError, setGeocodeError] = useState("");
+
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
+
+  const handleGeocode = async () => {
+    if (!address.trim()) return;
+    setIsGeocoding(true);
+    setGeocodeError("");
+    setGeocodeResult(null);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address.trim())}&limit=1`,
+        { headers: { "Accept-Language": "es", "User-Agent": "LuxeEstate/1.0" } }
+      );
+      const data = await res.json();
+      if (data.length > 0) {
+        const { lat: gLat, lon: gLon, display_name } = data[0];
+        const parsedLat = parseFloat(gLat);
+        const parsedLng = parseFloat(gLon);
+        setLat(parsedLat);
+        setLng(parsedLng);
+        setGeocodeResult({ display_name, lat: parsedLat, lng: parsedLng });
+      } else {
+        setGeocodeError("No se encontraron resultados. Intenta con una dirección más específica.");
+      }
+    } catch {
+      setGeocodeError("Error al conectar con el servicio de geocodificación. Intenta nuevamente.");
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -128,8 +167,8 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
       parking,
       images,
       amenities,
-      lat: initialData?.lat || 37.4419,
-      lng: initialData?.lng || -122.143,
+      lat: lat ?? (initialData?.lat ?? 0),
+      lng: lng ?? (initialData?.lng ?? 0),
       badge: initialData?.badge || "New",
       is_featured: initialData?.is_featured ?? false,
     };
@@ -451,29 +490,84 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                 <label htmlFor="location" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">
                   {pf.addressLabel || "Address"} <span className="text-red-500">*</span>
                 </label>
-                <input
-                  id="location"
-                  type="text"
-                  required
-                  value={address}
-                  onChange={(e) => {
-                    setAddress(e.target.value);
-                    if (fieldErrors.location) setFieldErrors({ ...fieldErrors, location: false });
-                  }}
-                  placeholder={pf.addressPlaceholder || "Street Address, City, Zip"}
-                  className={`w-full px-4 py-2.5 rounded-md border bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sf ${
-                    fieldErrors.location
-                      ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
-                      : "border-gray-200 dark:border-white/10"
-                  }`}
-                />
+                {/* Input + Search Button row */}
+                <div className="flex gap-2">
+                  <input
+                    id="location"
+                    type="text"
+                    required
+                    value={address}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      setGeocodeResult(null);
+                      setGeocodeError("");
+                      if (fieldErrors.location) setFieldErrors({ ...fieldErrors, location: false });
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleGeocode(); } }}
+                    placeholder={pf.addressPlaceholder || "Street Address, City, Zip"}
+                    className={`flex-1 px-4 py-2.5 rounded-md border bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sf ${
+                      fieldErrors.location
+                        ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
+                        : "border-gray-200 dark:border-white/10"
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleGeocode}
+                    disabled={isGeocoding || !address.trim()}
+                    title={pf.geocodeButton || "Buscar en el mapa"}
+                    className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-md bg-mosque text-white text-sm font-semibold font-sf hover:bg-mosque/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  >
+                    <span className={`material-icons text-base ${isGeocoding ? "animate-spin" : ""}`}>
+                      {isGeocoding ? "sync" : "my_location"}
+                    </span>
+                    <span className="hidden sm:inline">{isGeocoding ? (pf.geocoding || "Buscando...") : (pf.geocodeButton || "Buscar")}</span>
+                  </button>
+                </div>
+
+                {/* Validation error */}
                 {fieldErrors.location && (
                   <p className="text-xs text-red-500 dark:text-red-400 font-medium mt-1.5 flex items-center gap-1.5 animate-pulse">
                     <span className="material-icons text-sm">error_outline</span>
                     {pf.errorReqAddress || "La dirección es obligatoria para publicar."}
                   </p>
                 )}
+
+                {/* Geocode Error */}
+                {geocodeError && (
+                  <div className="mt-3 flex items-start gap-2 p-3 rounded-lg bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800">
+                    <span className="material-icons text-red-500 text-base mt-0.5 flex-shrink-0">location_off</span>
+                    <p className="text-xs text-red-600 dark:text-red-400 font-sf leading-relaxed">{geocodeError}</p>
+                  </div>
+                )}
+
+                {/* Geocode Success Card */}
+                {geocodeResult && (
+                  <div className="mt-3 p-3 rounded-lg bg-hint-green/20 dark:bg-mosque/10 border border-mosque/30 dark:border-mosque/30">
+                    <div className="flex items-start gap-2">
+                      <span className="material-icons text-mosque dark:text-[#4db8a0] text-base mt-0.5 flex-shrink-0">check_circle</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-mosque dark:text-[#4db8a0] font-sf mb-1">
+                          {pf.geocodeConfirmed || "Ubicación confirmada"}
+                        </p>
+                        <p className="text-xs text-gray-600 dark:text-white/60 font-sf leading-relaxed truncate" title={geocodeResult.display_name}>
+                          {geocodeResult.display_name}
+                        </p>
+                        <div className="flex items-center gap-3 mt-2">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono bg-white dark:bg-white/10 text-nordic dark:text-white px-2 py-0.5 rounded border border-gray-200 dark:border-white/10">
+                            <span className="text-mosque font-bold">Lat:</span> {geocodeResult.lat.toFixed(6)}
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono bg-white dark:bg-white/10 text-nordic dark:text-white px-2 py-0.5 rounded border border-gray-200 dark:border-white/10">
+                            <span className="text-mosque font-bold">Lng:</span> {geocodeResult.lng.toFixed(6)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* Map Preview */}
               <div className="relative h-48 w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 group">
                 <img
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS55FY7gfArnlTpNsdabJk9nBO5uQJgOwIsl8beO34JRZ9dMmjLoIkTuTUO72Y9L5tUmQqTReQWebUWadAWwLusGmRQiIict5sqY--yRaOxuYpTzfR4vv4RKh1ex6oxY64e0kbSeMudNO6pv-gG0WzVWs-pDfvQm5IoTQ1mT-tAV49LDkXAHZl317M1-D7eZw3N8o2ExKWTgg6oMAXOFVnkApIqnb7TZHekwSw8pWQxpJV2EKI8EQKQbQXJaSbjN8gB1n8b-ueWj8"

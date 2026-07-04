@@ -171,7 +171,19 @@
     "successTitleCreated": "Property Created!",
     "successCreated": "The property has been successfully registered and published in the catalog.",
     "successTitleUpdated": "Changes Saved!",
-    "successUpdated": "The property details and specifications have been successfully updated."
+    "successUpdated": "The property details and specifications have been successfully updated.",
+    "statusInactive": "Inactive",
+    "modalDeactivateTitle": "Deactivate property?",
+    "modalReactivateTitle": "Reactivate property?",
+    "modalDeactivateDesc1": "You are about to hide ",
+    "modalDeactivateDesc2": " from the public catalog. It will no longer appear in searches or on the homescreen, but you can reactivate it anytime from this panel.",
+    "modalReactivateDesc1": "You are about to republish ",
+    "modalReactivateDesc2": ". It will immediately become visible in the catalog and search results.",
+    "modalCancelBtn": "Cancel",
+    "modalDeactivateBtn": "Deactivate now",
+    "modalReactivateBtn": "Reactivate now",
+    "successDeactivated": "The property has been deactivated and hidden from the public catalog.",
+    "successReactivated": "The property has been reactivated and is visible in the catalog."
   },
   "propertyForm": {
     "breadcrumbProperties": "Properties",

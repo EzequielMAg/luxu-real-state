@@ -29,11 +29,12 @@ export default async function DashboardPage({
     page: currentPage,
     limit: PAGE_SIZE,
     search,
+    includeInactive: true,
   });
 
-  // Stats: para las cards usamos getProperties sin filtro
-  const { total: totalAll } = await getProperties({ page: 1, limit: 100 });
-  const { properties: allForStats } = await getProperties({ page: 1, limit: 100 });
+  // Stats: para las cards usamos getProperties con includeInactive
+  const { total: totalAll } = await getProperties({ page: 1, limit: 100, includeInactive: true });
+  const { properties: allForStats } = await getProperties({ page: 1, limit: 100, includeInactive: true });
   const featuredCount = allForStats.filter((p) => p.is_featured).length;
   const buyCount = allForStats.filter((p) => p.action === "Buy").length;
 

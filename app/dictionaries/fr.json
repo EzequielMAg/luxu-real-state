@@ -171,7 +171,19 @@
     "successTitleCreated": "Propriété Créée !",
     "successCreated": "La propriété a été enregistrée et publiée avec succès dans le catalogue.",
     "successTitleUpdated": "Modifications Enregistrées !",
-    "successUpdated": "Les détails et les spécifications de la propriété ont été mis à jour avec succès."
+    "successUpdated": "Les détails et les spécifications de la propriété ont été mis à jour avec succès.",
+    "statusInactive": "Désactivée",
+    "modalDeactivateTitle": "Désactiver la propriété ?",
+    "modalReactivateTitle": "Réactiver la propriété ?",
+    "modalDeactivateDesc1": "Vous êtes sur le point de masquer ",
+    "modalDeactivateDesc2": " du catalogue public. Elle n'apparaîtra plus dans les recherches ni sur la page d'accueil, mais vous pourrez la réactiver à tout moment depuis ce panneau.",
+    "modalReactivateDesc1": "Vous êtes sur le point de republier ",
+    "modalReactivateDesc2": ". Elle sera immédiatement visible dans le catalogue et les résultats de recherche.",
+    "modalCancelBtn": "Annuler",
+    "modalDeactivateBtn": "Désactiver maintenant",
+    "modalReactivateBtn": "Réactiver maintenant",
+    "successDeactivated": "La propriété a été désactivée et masquée du catalogue public.",
+    "successReactivated": "La propriété a été réactivée et est visible dans le catalogue."
   },
   "propertyForm": {
     "breadcrumbProperties": "Propriétés",

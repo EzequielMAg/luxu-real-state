@@ -47,6 +47,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
 
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
 
   useEffect(() => {
     if (successType) {
@@ -65,12 +66,17 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
 
   useEffect(() => {
     if (highlightedId) {
+      setActiveHighlightId(highlightedId);
       const el = document.getElementById(`property-row-${highlightedId}`);
       if (el) {
         setTimeout(() => {
           el.scrollIntoView({ behavior: "smooth", block: "center" });
         }, 300);
       }
+      const timer = setTimeout(() => {
+        setActiveHighlightId(null);
+      }, 6000);
+      return () => clearTimeout(timer);
     }
   }, [highlightedId]);
 
@@ -109,8 +115,8 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
               <tr
                 key={property.id}
                 id={`property-row-${property.id}`}
-                className={`transition-all duration-700 ${
-                  property.id === highlightedId
+                className={`transition-all duration-1000 ${
+                  property.id === activeHighlightId
                     ? "bg-mosque/15 dark:bg-mosque/20 ring-2 ring-mosque/50 shadow-md font-medium"
                     : "hover:bg-gray-50/50 dark:hover:bg-white/2"
                 }`}

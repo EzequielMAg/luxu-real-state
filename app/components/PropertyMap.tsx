@@ -17,9 +17,9 @@ interface PropertyMapProps {
 export default function PropertyMap({ lat, lng, title, address }: PropertyMapProps) {
   const { t } = useTranslation();
   const [showMapModal, setShowMapModal] = useState(false);
-  const mapLabel = (t.properties as Record<string, string>).viewOnGoogleMaps || "View on Google Maps";
-  const closeLabel = (t.properties as Record<string, string>).closeMap || "Cerrar mapa";
-  const pf = (t.propertyForm as Record<string, string>) || {};
+  const mapLabel = (t.properties as Record<string, any>).viewOnGoogleMaps || "View on Google Maps";
+  const closeLabel = (t.properties as Record<string, any>).closeMap || "Cerrar mapa";
+  const pf = (t.propertyForm as Record<string, any>) || {};
   const expandLabel = pf.geocodeExpand || "Ver mapa completo";
 
   useEffect(() => {

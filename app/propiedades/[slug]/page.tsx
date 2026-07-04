@@ -355,7 +355,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
       <footer className="bg-card-bg border-t border-nordic-dark/10 mt-16 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-sm text-nordic-muted">
-            {(t.properties as Record<string, string>).allRightsReserved || "© 2026 LuxeEstate Inc. All rights reserved."}
+            {(t.properties as Record<string, any>).allRightsReserved || "© 2026 LuxeEstate Inc. All rights reserved."}
           </div>
         </div>
       </footer>

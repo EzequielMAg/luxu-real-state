@@ -25,8 +25,8 @@ export default function PropertyGallery({
   const currentImage = validImages[selectedIndex] || validImages[0];
 
   const actionLabel = action === "Buy" ? t.hero.tabSale : action === "Rent" ? t.hero.tabRent : action;
-  const viewPhotosLabel = (t.properties as Record<string, string>).viewAllPhotos
-    ? (t.properties as Record<string, string>).viewAllPhotos.replace("{count}", String(validImages.length))
+  const viewPhotosLabel = (t.properties as Record<string, any>).viewAllPhotos
+    ? (t.properties as Record<string, any>).viewAllPhotos.replace("{count}", String(validImages.length))
     : `View All Photos (${validImages.length})`;
 
   return (

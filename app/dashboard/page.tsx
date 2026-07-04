@@ -35,8 +35,9 @@ export default async function DashboardPage({
   // Stats: para las cards usamos getProperties con includeInactive
   const { total: totalAll } = await getProperties({ page: 1, limit: 100, includeInactive: true });
   const { properties: allForStats } = await getProperties({ page: 1, limit: 100, includeInactive: true });
+  const activeCount = allForStats.filter((p) => p.is_active !== false).length;
+  const inactiveCount = allForStats.filter((p) => p.is_active === false).length;
   const featuredCount = allForStats.filter((p) => p.is_featured).length;
-  const buyCount = allForStats.filter((p) => p.action === "Buy").length;
 
   const from = (currentPage - 1) * PAGE_SIZE + 1;
   const to = Math.min(currentPage * PAGE_SIZE, total);
@@ -69,7 +70,7 @@ export default async function DashboardPage({
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           icon="grid_view"
           label={d?.totalProperties ?? "Total Listings"}
@@ -79,17 +80,24 @@ export default async function DashboardPage({
         />
         <StatCard
           icon="check_circle"
-          label={d?.featured ?? "Featured"}
-          value={featuredCount}
+          label={d?.activeListings ?? "Active Listings"}
+          value={activeCount}
           iconBg="bg-green-50 dark:bg-green-900/20"
           iconColor="text-green-600 dark:text-green-400"
         />
         <StatCard
-          icon="sell"
-          label="For Sale"
-          value={buyCount}
-          iconBg="bg-orange-50 dark:bg-orange-900/20"
-          iconColor="text-orange-500 dark:text-orange-400"
+          icon="visibility_off"
+          label={d?.inactiveListings ?? "Inactive Listings"}
+          value={inactiveCount}
+          iconBg="bg-red-50 dark:bg-red-900/20"
+          iconColor="text-red-500 dark:text-red-400"
+        />
+        <StatCard
+          icon="star"
+          label={d?.featured ?? "Featured"}
+          value={featuredCount}
+          iconBg="bg-amber-50 dark:bg-amber-900/20"
+          iconColor="text-amber-500 dark:text-amber-400"
         />
       </div>
 

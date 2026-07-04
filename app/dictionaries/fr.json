@@ -183,7 +183,11 @@
     "modalDeactivateBtn": "Désactiver maintenant",
     "modalReactivateBtn": "Réactiver maintenant",
     "successDeactivated": "La propriété a été désactivée et masquée du catalogue public.",
-    "successReactivated": "La propriété a été réactivée et est visible dans le catalogue."
+    "successReactivated": "La propriété a été réactivée et est visible dans le catalogue.",
+    "activeListings": "Annonces Actives",
+    "inactiveListings": "Annonces Inactives",
+    "softDeleteInfoBtn": "Qu'est-ce que la suppression logique ?",
+    "softDeleteInfoText": "Pour protéger l'historique, les statistiques et les références de la propriété, nous appliquons une suppression logique (Soft Delete). La propriété n'est pas effacée définitivement ; son statut devient inactif, la masquant du catalogue public tout en conservant les données."
   },
   "propertyForm": {
     "breadcrumbProperties": "Propriétés",

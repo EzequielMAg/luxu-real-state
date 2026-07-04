@@ -183,7 +183,11 @@
     "modalDeactivateBtn": "Deactivate now",
     "modalReactivateBtn": "Reactivate now",
     "successDeactivated": "The property has been deactivated and hidden from the public catalog.",
-    "successReactivated": "The property has been reactivated and is visible in the catalog."
+    "successReactivated": "The property has been reactivated and is visible in the catalog.",
+    "activeListings": "Active Listings",
+    "inactiveListings": "Inactive Listings",
+    "softDeleteInfoBtn": "What is Soft Delete?",
+    "softDeleteInfoText": "To safeguard property history, analytics, and references, we apply a Soft Delete in the database. The listing is never permanently deleted; instead, its status changes to inactive, safely hiding it from public catalogs while preserving all data."
   },
   "propertyForm": {
     "breadcrumbProperties": "Properties",

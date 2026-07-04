@@ -183,7 +183,11 @@
     "modalDeactivateBtn": "Desactivar ahora",
     "modalReactivateBtn": "Reactivar ahora",
     "successDeactivated": "La propiedad ha sido desactivada y oculta del catálogo público.",
-    "successReactivated": "La propiedad ha sido reactivada y está visible en el catálogo."
+    "successReactivated": "La propiedad ha sido reactivada y está visible en el catálogo.",
+    "activeListings": "Propiedades Activas",
+    "inactiveListings": "Propiedades Inactivas",
+    "softDeleteInfoBtn": "¿Qué es la baja lógica (Soft Delete)?",
+    "softDeleteInfoText": "Para proteger el historial, estadísticas y referencias de la propiedad, aplicamos una baja lógica en la base de datos (Soft Delete). La propiedad no se borra permanentemente, sino que cambia su estado a inactivo, ocultándose del catálogo público para proteger tu información."
   },
   "propertyForm": {
     "breadcrumbProperties": "Propiedades",

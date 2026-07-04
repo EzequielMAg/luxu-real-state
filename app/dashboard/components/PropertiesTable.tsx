@@ -50,6 +50,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [activeHighlightId, setActiveHighlightId] = useState<string | null>(null);
+  const [showSoftDeleteInfo, setShowSoftDeleteInfo] = useState(false);
 
   useEffect(() => {
     if (successType) {
@@ -91,6 +92,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
   };
 
   const handleToggleActive = (property: Property) => {
+    setShowSoftDeleteInfo(false);
     setConfirmingProperty(property);
   };
 
@@ -100,6 +102,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
     const isDeactivating = prop.is_active !== false;
 
     setConfirmingProperty(null);
+    setShowSoftDeleteInfo(false);
     setActiveLoadingId(prop.id);
     startTransition(async () => {
       await togglePropertyActive(prop.id, prop.is_active !== false);
@@ -291,8 +294,8 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                         {isPending && activeLoadingId === property.id
                           ? "sync"
                           : property.is_active === false
-                          ? "visibility"
-                          : "visibility_off"}
+                          ? "restore_from_trash"
+                          : "delete_outline"}
                       </span>
                     </button>
                   </div>
@@ -388,13 +391,36 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                     </>
                   )}
                 </p>
+
+                {/* Soft Delete Explanation Accordion / Box */}
+                <div className="mt-4 bg-gray-50 dark:bg-white/5 border border-gray-200/60 dark:border-white/10 rounded-xl p-3 text-xs text-gray-600 dark:text-white/70">
+                  <button
+                    type="button"
+                    onClick={() => setShowSoftDeleteInfo(!showSoftDeleteInfo)}
+                    className="w-full flex items-center justify-between font-bold text-gray-800 dark:text-white hover:text-mosque dark:hover:text-[#4db8a0] transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <span className="material-icons text-sm text-mosque dark:text-[#4db8a0]">info</span>
+                      {d.softDeleteInfoBtn || "¿Qué es la baja lógica (Soft Delete)?"}
+                    </span>
+                    <span className="material-icons text-sm">{showSoftDeleteInfo ? "expand_less" : "expand_more"}</span>
+                  </button>
+                  {showSoftDeleteInfo && (
+                    <p className="mt-2.5 leading-relaxed pt-2 border-t border-gray-200/40 dark:border-white/5 animate-fade-in text-gray-600 dark:text-white/60">
+                      {d.softDeleteInfoText || "Para proteger el historial, estadísticas y referencias de la propiedad, aplicamos una baja lógica en la base de datos (Soft Delete). La propiedad no se borra permanentemente, sino que cambia su estado a inactivo, ocultándose del catálogo público para proteger tu información."}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-100 dark:border-white/5">
               <button
                 type="button"
-                onClick={() => setConfirmingProperty(null)}
+                onClick={() => {
+                  setConfirmingProperty(null);
+                  setShowSoftDeleteInfo(false);
+                }}
                 className="px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5 font-semibold text-sm transition-all cursor-pointer font-sf"
               >
                 {d.modalCancelBtn || "Cancelar"}

@@ -187,7 +187,18 @@
     "activeListings": "Propiedades Activas",
     "inactiveListings": "Propiedades Inactivas",
     "softDeleteInfoBtn": "¿Qué es la baja lógica (Soft Delete)?",
-    "softDeleteInfoText": "Para proteger el historial, estadísticas y referencias de la propiedad, aplicamos una baja lógica en la base de datos (Soft Delete). La propiedad no se borra permanentemente, sino que cambia su estado a inactivo, ocultándose del catálogo público para proteger tu información."
+    "softDeleteInfoText": "Para proteger el historial, estadísticas y referencias de la propiedad, aplicamos una baja lógica en la base de datos (Soft Delete). La propiedad no se borra permanentemente, sino que cambia su estado a inactivo, ocultándose del catálogo público para proteger tu información.",
+    "filterBtn": "Filtrar",
+    "addNewProperty": "Añadir Propiedad",
+    "showing": "Mostrando",
+    "to": "a",
+    "of": "de",
+    "results": "resultados",
+    "prevPage": "Página anterior",
+    "nextPage": "Página siguiente",
+    "editPropertyTooltip": "Editar propiedad",
+    "deactivateTooltip": "Desactivar propiedad",
+    "reactivateTooltip": "Reactivar propiedad"
   },
   "propertyForm": {
     "breadcrumbProperties": "Propiedades",

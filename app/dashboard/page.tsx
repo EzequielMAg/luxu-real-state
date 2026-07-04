@@ -55,16 +55,16 @@ export default async function DashboardPage({
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-medium text-gray-700 dark:text-white/70 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-all">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 text-sm font-medium text-gray-700 dark:text-white/70 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 transition-all cursor-pointer">
             <span className="material-icons text-base">tune</span>
-            Filter
+            {d?.filterBtn ?? "Filter"}
           </button>
           <Link
             href="/dashboard/properties/create"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-mosque text-white text-sm font-semibold hover:bg-mosque/90 transition-all shadow-sm shadow-mosque/20"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-mosque text-white text-sm font-semibold hover:bg-mosque/90 transition-all shadow-sm shadow-mosque/20 cursor-pointer"
           >
             <span className="material-icons text-base">add</span>
-            Add New Property
+            {d?.addNewProperty ?? "Add New Property"}
           </Link>
         </div>
       </div>
@@ -108,19 +108,19 @@ export default async function DashboardPage({
         {/* Pagination Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-white/5">
           <p className="text-sm text-gray-500 dark:text-white/40">
-            Showing{" "}
+            {d?.showing ?? "Showing"}{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {from}
             </span>{" "}
-            to{" "}
+            {d?.to ?? "to"}{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {to}
             </span>{" "}
-            of{" "}
+            {d?.of ?? "of"}{" "}
             <span className="font-semibold text-gray-900 dark:text-white">
               {total}
             </span>{" "}
-            results
+            {d?.results ?? "results"}
           </p>
 
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -132,7 +132,7 @@ export default async function DashboardPage({
                   ? "border-gray-100 dark:border-white/5 text-gray-300 dark:text-white/20 cursor-not-allowed pointer-events-none"
                   : "border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5"
               }`}
-              title="Previous page"
+              title={d?.prevPage ?? "Previous page"}
             >
               <span className="material-icons text-sm">chevron_left</span>
             </a>
@@ -159,7 +159,7 @@ export default async function DashboardPage({
                   ? "border-gray-100 dark:border-white/5 text-gray-300 dark:text-white/20 cursor-not-allowed pointer-events-none"
                   : "border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5"
               }`}
-              title="Next page"
+              title={d?.nextPage ?? "Next page"}
             >
               <span className="material-icons text-sm">chevron_right</span>
             </a>

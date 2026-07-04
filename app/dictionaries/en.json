@@ -187,7 +187,18 @@
     "activeListings": "Active Listings",
     "inactiveListings": "Inactive Listings",
     "softDeleteInfoBtn": "What is Soft Delete?",
-    "softDeleteInfoText": "To safeguard property history, analytics, and references, we apply a Soft Delete in the database. The listing is never permanently deleted; instead, its status changes to inactive, safely hiding it from public catalogs while preserving all data."
+    "softDeleteInfoText": "To safeguard property history, analytics, and references, we apply a Soft Delete in the database. The listing is never permanently deleted; instead, its status changes to inactive, safely hiding it from public catalogs while preserving all data.",
+    "filterBtn": "Filter",
+    "addNewProperty": "Add New Property",
+    "showing": "Showing",
+    "to": "to",
+    "of": "of",
+    "results": "results",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "editPropertyTooltip": "Edit property",
+    "deactivateTooltip": "Deactivate property",
+    "reactivateTooltip": "Reactivate property"
   },
   "propertyForm": {
     "breadcrumbProperties": "Properties",

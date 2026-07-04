@@ -275,7 +275,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                   <div className="flex items-center justify-end gap-2">
                     <Link
                       href={`/dashboard/properties/${property.id}/edit`}
-                      title="Edit property"
+                      title={d.editPropertyTooltip || "Edit property"}
                       className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-mosque dark:hover:text-[#4db8a0] hover:bg-mosque/5 transition-all cursor-pointer"
                     >
                       <span className="material-icons text-base">edit</span>
@@ -283,7 +283,7 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
                     <button
                       onClick={() => handleToggleActive(property)}
                       disabled={isPending && activeLoadingId === property.id}
-                      title={property.is_active === false ? "Reactivar propiedad" : "Desactivar propiedad"}
+                      title={property.is_active === false ? (d.reactivateTooltip || "Reactivar propiedad") : (d.deactivateTooltip || "Desactivar propiedad")}
                       className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all cursor-pointer ${
                         property.is_active === false
                           ? "text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"

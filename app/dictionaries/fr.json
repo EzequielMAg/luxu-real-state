@@ -187,7 +187,18 @@
     "activeListings": "Annonces Actives",
     "inactiveListings": "Annonces Inactives",
     "softDeleteInfoBtn": "Qu'est-ce que la suppression logique ?",
-    "softDeleteInfoText": "Pour protéger l'historique, les statistiques et les références de la propriété, nous appliquons une suppression logique (Soft Delete). La propriété n'est pas effacée définitivement ; son statut devient inactif, la masquant du catalogue public tout en conservant les données."
+    "softDeleteInfoText": "Pour protéger l'historique, les statistiques et les références de la propriété, nous appliquons une suppression logique (Soft Delete). La propriété n'est pas effacée définitivement ; son statut devient inactif, la masquant du catalogue public tout en conservant les données.",
+    "filterBtn": "Filtrer",
+    "addNewProperty": "Ajouter une propriété",
+    "showing": "Affichage de",
+    "to": "à",
+    "of": "sur",
+    "results": "résultats",
+    "prevPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "editPropertyTooltip": "Modifier la propriété",
+    "deactivateTooltip": "Désactiver la propriété",
+    "reactivateTooltip": "Réactiver la propriété"
   },
   "propertyForm": {
     "breadcrumbProperties": "Propriétés",

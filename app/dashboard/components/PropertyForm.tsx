@@ -36,11 +36,11 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
   const [address, setAddress] = useState(initialData?.address || "");
   const [size, setSize] = useState(initialData?.size || "");
   const [yearBuilt, setYearBuilt] = useState(initialData?.year_built ? String(initialData.year_built) : "");
-  const [beds, setBeds] = useState(initialData?.beds ?? 3);
-  const [baths, setBaths] = useState(initialData?.baths ?? 2);
-  const [parking, setParking] = useState(initialData?.parking ?? 1);
+  const [beds, setBeds] = useState(initialData?.beds ?? 0);
+  const [baths, setBaths] = useState(initialData?.baths ?? 0);
+  const [parking, setParking] = useState(initialData?.parking ?? 0);
   const [images, setImages] = useState<string[]>(initialData?.images || []);
-  const [amenities, setAmenities] = useState<string[]>(initialData?.amenities || ["Garden"]);
+  const [amenities, setAmenities] = useState<string[]>(initialData?.amenities || []);
 
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,6 +94,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
     if (!title.trim()) errors.title = true;
     if (!price || Number(price) <= 0) errors.price = true;
     if (!address.trim()) errors.location = true;
+    if (!size.trim() || Number(size) <= 0 || size === "0") errors.area = true;
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -118,7 +119,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
       type,
       description,
       address: address.trim(),
-      size: size || "2500",
+      size: size.trim(),
       year_built: yearBuilt ? Number(yearBuilt) : undefined,
       beds,
       baths,
@@ -484,16 +485,30 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="group">
                   <label htmlFor="area" className="text-xs text-gray-500 dark:text-white/40 font-medium font-sf mb-1 block">
-                    {pf.areaLabel || "Area (sqft / m²)"}
+                    {pf.areaLabel || "Area (sqft / m²)"} <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="area"
-                    type="text"
+                    type="number"
+                    required
                     value={size}
-                    onChange={(e) => setSize(e.target.value)}
+                    onChange={(e) => {
+                      setSize(e.target.value);
+                      if (fieldErrors.area) setFieldErrors({ ...fieldErrors, area: false });
+                    }}
                     placeholder="0"
-                    className="w-full text-left px-3 py-2 rounded border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-nordic dark:text-white focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sf text-sm"
+                    className={`w-full text-left px-3 py-2 rounded border bg-gray-50 dark:bg-white/5 text-nordic dark:text-white focus:bg-white dark:focus:bg-white/10 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sf text-sm ${
+                      fieldErrors.area
+                        ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
+                        : "border-gray-200 dark:border-white/10"
+                    }`}
                   />
+                  {fieldErrors.area && (
+                    <p className="text-xs text-red-500 dark:text-red-400 font-medium mt-1.5 flex items-center gap-1 animate-pulse">
+                      <span className="material-icons text-xs">error_outline</span>
+                      {pf.errorReqArea || "El área es obligatoria."}
+                    </p>
+                  )}
                 </div>
                 <div className="group">
                   <label htmlFor="year" className="text-xs text-gray-500 dark:text-white/40 font-medium font-sf mb-1 block">

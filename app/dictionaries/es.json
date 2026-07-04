@@ -179,7 +179,7 @@
     "saveBtn": "Guardar Propiedad",
     "savingBtn": "Guardando...",
     "saveMobileBtn": "Guardar",
-    "errorMandatory": "Por favor completa los campos obligatorios (Título y Precio).",
+    "errorMandatory": "Por favor completa los campos obligatorios (*).",
     "errorUpload": "Error al subir la imagen",
     "errorCreate": "Error al crear la propiedad.",
     "errorUpdate": "Error al actualizar la propiedad.",
@@ -231,6 +231,7 @@
     "footerTip": "Verifica todos los campos obligatorios (*) antes de guardar.",
     "errorReqTitle": "Este campo es obligatorio para publicar.",
     "errorReqPrice": "Ingresa un precio válido mayor a 0.",
-    "errorReqAddress": "La dirección es obligatoria para publicar."
+    "errorReqAddress": "La dirección es obligatoria para publicar.",
+    "errorReqArea": "El área es obligatoria para publicar."
   }
 }

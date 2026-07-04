@@ -179,7 +179,7 @@
     "saveBtn": "Save Property",
     "savingBtn": "Saving...",
     "saveMobileBtn": "Save",
-    "errorMandatory": "Please fill in mandatory fields (Title and Price).",
+    "errorMandatory": "Please fill in all mandatory fields marked with (*).",
     "errorUpload": "Error uploading image",
     "errorCreate": "Failed to create property.",
     "errorUpdate": "Failed to update property.",
@@ -231,6 +231,7 @@
     "footerTip": "Double-check all mandatory fields (*) before saving.",
     "errorReqTitle": "This field is mandatory for publishing.",
     "errorReqPrice": "Enter a valid price greater than 0.",
-    "errorReqAddress": "Address is mandatory for publishing."
+    "errorReqAddress": "Address is mandatory for publishing.",
+    "errorReqArea": "Area is mandatory for publishing."
   }
 }

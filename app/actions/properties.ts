@@ -267,6 +267,9 @@ export async function createProperty(
     if (!payload.address || !payload.address.trim() || payload.address === "Specified Address") {
       return { success: false, error: "La dirección de la propiedad es obligatoria." };
     }
+    if (!payload.size || !payload.size.trim() || Number(payload.size) <= 0 || payload.size === "0" || payload.size === "2500") {
+      return { success: false, error: "El área de la propiedad es obligatoria y debe ser mayor a 0." };
+    }
 
     const title = payload.title.trim();
     const slug = payload.slug || generateSlug(title);
@@ -316,6 +319,9 @@ export async function updateProperty(
     }
     if (payload.address !== undefined && (!payload.address || !payload.address.trim() || payload.address === "Specified Address")) {
       return { success: false, error: "La dirección de la propiedad es obligatoria." };
+    }
+    if (payload.size !== undefined && (!payload.size || !payload.size.trim() || Number(payload.size) <= 0 || payload.size === "0" || payload.size === "2500")) {
+      return { success: false, error: "El área de la propiedad es obligatoria y debe ser mayor a 0." };
     }
 
     // Remove immutable fields if present

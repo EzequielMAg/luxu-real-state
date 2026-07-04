@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import "./globals.css";
 import { getDictionary, hasLocale, defaultLocale, Locale } from "./dictionaries";
 import { I18nProvider } from "./i18n/I18nProvider";
+import ThemeInitializer from "./components/ThemeInitializer";
 
 export const metadata: Metadata = {
   title: "LuxeEstate - Premium Real Estate Sanctuary",
@@ -32,23 +33,7 @@ export default async function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
       </head>
       <body className="min-h-full flex flex-col">
-        <script
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const theme = localStorage.getItem('theme');
-                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (_) {}
-              })()
-            `,
-          }}
-        />
+        <ThemeInitializer />
         <I18nProvider initialLocale={locale} initialDictionary={dictionary}>
           {children}
         </I18nProvider>

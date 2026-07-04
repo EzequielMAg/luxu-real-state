@@ -48,7 +48,7 @@ export default function LeafletMap({ lat, lng, zoom = 15, height = "100%", onLoc
         center: [lat, lng],
         zoom,
         zoomControl: true,
-        scrollWheelZoom: false,
+        scrollWheelZoom: true,
       });
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {

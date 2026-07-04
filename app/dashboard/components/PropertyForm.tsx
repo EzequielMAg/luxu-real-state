@@ -599,7 +599,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
 
                     {/* Dropdown suggestions */}
                     {showSuggestions && geocodeSuggestions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 z-[500] mt-1 bg-white dark:bg-[#0d2218] border border-gray-200 dark:border-white/10 rounded-lg shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-white/5">
+                      <div className="absolute top-full left-0 right-0 z-[2500] mt-1 bg-white dark:bg-[#0d2218] border border-gray-200 dark:border-white/10 rounded-lg shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-white/5">
                         {geocodeSuggestions.map((s, i) => (
                           <button
                             key={i}
@@ -917,7 +917,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
         </div>
 
         {/* Sticky Bottom Action Bar accompanying scroll */}
-        <div className="xl:col-span-12 sticky bottom-0 sm:bottom-4 z-30 mt-6 bg-white/95 dark:bg-[#0a1a17]/95 backdrop-blur-md rounded-t-xl sm:rounded-xl p-4 sm:p-6 border border-gray-200/80 dark:border-white/10 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 transition-all">
+        <div className="xl:col-span-12 sticky bottom-0 sm:bottom-4 z-[2000] mt-6 bg-white/95 dark:bg-[#0a1a17]/95 backdrop-blur-md rounded-t-xl sm:rounded-xl p-4 sm:p-6 border border-gray-200/80 dark:border-white/10 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 transition-all">
           <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-white/60 font-sf">
             <div className="w-8 h-8 rounded-full bg-mosque/10 text-mosque flex items-center justify-center flex-shrink-0">
               <span className="material-icons text-base">info</span>
@@ -946,8 +946,14 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
 
       {/* Fullscreen Map Modal */}
       {showMapModal && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 animate-fadeIn">
-          <div className="relative w-full max-w-4xl h-[75vh] bg-white dark:bg-[#0a1a17] rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-white/10 flex flex-col">
+        <div 
+          className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 animate-fadeIn cursor-pointer"
+          onClick={() => setShowMapModal(false)}
+        >
+          <div 
+            className="relative w-full max-w-4xl h-[75vh] bg-white dark:bg-[#0a1a17] rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-white/10 flex flex-col cursor-default"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10 flex items-center justify-between bg-gray-50 dark:bg-white/5">
               <div className="flex items-center gap-2 min-w-0 pr-4">
                 <span className="material-icons text-mosque flex-shrink-0">place</span>

@@ -6,13 +6,14 @@ import { Property, PropertyAction, PropertyType } from "@/app/types/property";
 import { revalidatePath } from "next/cache";
 
 function getAdminSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    "";
-  return createAdminClient(url, key);
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "[getAdminSupabase] SUPABASE_SERVICE_ROLE_KEY no está configurado en las variables de entorno del servidor."
+    );
+  }
+  return createAdminClient(url, key, { auth: { persistSession: false } });
 }
 
 const PROPERTIES_PER_PAGE = 8;

@@ -240,6 +240,10 @@
     "errorReqImages": "Debes subir al menos una imagen para publicar.",
     "geocodeButton": "Buscar",
     "geocoding": "Buscando...",
-    "geocodeConfirmed": "Ubicación confirmada"
+    "geocodeConfirmed": "Ubicación confirmada",
+    "geocodeLocate": "Usar mi ubicación",
+    "geocodePickOne": "Selecciona una opción",
+    "geocodeExpand": "Ver mapa completo"
   }
 }
+

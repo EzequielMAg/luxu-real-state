@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Property, PropertyAction, PropertyType } from "@/app/types/property";
 import { uploadPropertyImage, createProperty, updateProperty } from "@/app/actions/properties";
 import { useTranslation } from "@/app/i18n/I18nProvider";
+import LeafletMapDynamic from "./LeafletMapDynamic";
 
 interface PropertyFormProps {
   initialData?: Property | null;
@@ -46,38 +47,59 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
 
   // Geocoding state
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [geocodeSuggestions, setGeocodeSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [geocodeResult, setGeocodeResult] = useState<{ display_name: string; lat: number; lng: number } | null>(
     initialData?.lat && initialData?.lng
       ? { display_name: initialData.address, lat: initialData.lat, lng: initialData.lng }
       : null
   );
   const [geocodeError, setGeocodeError] = useState("");
-
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Close modal with Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowMapModal(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
 
   const handleGeocode = async () => {
     if (!address.trim()) return;
     setIsGeocoding(true);
     setGeocodeError("");
-    setGeocodeResult(null);
+    setGeocodeSuggestions([]);
+    setShowSuggestions(false);
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address.trim())}&limit=1`,
-        { headers: { "Accept-Language": "es", "User-Agent": "LuxeEstate/1.0" } }
-      );
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address.trim())}&limit=5&addressdetails=1`;
+      const res = await fetch(url, {
+        headers: { "Accept-Language": "es", "User-Agent": "LuxeEstate/1.0" },
+      });
       const data = await res.json();
       if (data.length > 0) {
-        const { lat: gLat, lon: gLon, display_name } = data[0];
-        const parsedLat = parseFloat(gLat);
-        const parsedLng = parseFloat(gLon);
-        setLat(parsedLat);
-        setLng(parsedLng);
-        setGeocodeResult({ display_name, lat: parsedLat, lng: parsedLng });
+        setGeocodeSuggestions(data);
+        setShowSuggestions(true);
       } else {
-        setGeocodeError("No se encontraron resultados. Intenta con una dirección más específica.");
+        setGeocodeError("No se encontraron resultados. Intenta con una dirección más específica o haz clic en el mapa.");
       }
     } catch {
       setGeocodeError("Error al conectar con el servicio de geocodificación. Intenta nuevamente.");
@@ -85,6 +107,68 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
       setIsGeocoding(false);
     }
   };
+
+  const handleSelectSuggestion = (s: { display_name: string; lat: string; lon: string }) => {
+    const parsedLat = parseFloat(s.lat);
+    const parsedLng = parseFloat(s.lon);
+    setLat(parsedLat);
+    setLng(parsedLng);
+    setGeocodeResult({ display_name: s.display_name, lat: parsedLat, lng: parsedLng });
+    setGeocodeSuggestions([]);
+    setShowSuggestions(false);
+    setGeocodeError("");
+  };
+
+  const handleMapClick = async (newLat: number, newLng: number) => {
+    setLat(newLat);
+    setLng(newLng);
+    setGeocodeError("");
+    // Preliminary update so UI reacts instantly
+    setGeocodeResult((prev) => ({
+      display_name: prev?.display_name || address || "Coordenadas seleccionadas en mapa",
+      lat: newLat,
+      lng: newLng,
+    }));
+
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${newLat}&lon=${newLng}&addressdetails=1`,
+        { headers: { "Accept-Language": "es", "User-Agent": "LuxeEstate/1.0" } }
+      );
+      const data = await res.json();
+      if (data && data.display_name) {
+        setAddress(data.display_name);
+        setGeocodeResult({ display_name: data.display_name, lat: newLat, lng: newLng });
+        if (fieldErrors.location) setFieldErrors({ ...fieldErrors, location: false });
+      }
+    } catch {
+      // Keep coordinates even if reverse geocoding fails
+      console.error("Reverse geocoding failed");
+    }
+  };
+
+  const handleGoToMyPosition = () => {
+    if (!navigator.geolocation) {
+      setGeocodeError("La geolocalización no está disponible en este navegador.");
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const currentLat = pos.coords.latitude;
+        const currentLng = pos.coords.longitude;
+        setIsLocating(false);
+        handleMapClick(currentLat, currentLng);
+      },
+      () => {
+        setGeocodeError("No se pudo obtener tu ubicación. Verifica los permisos del navegador.");
+        setIsLocating(false);
+      }
+    );
+  };
+
+
+
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -478,8 +562,8 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
         {/* Right Column (4 cols) */}
         <div className="xl:col-span-4 space-y-8">
           {/* Location Box */}
-          <div className="bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
-            <div className="px-6 py-4 border-b border-hint-green/30 dark:border-white/10 flex items-center gap-3 bg-gradient-to-r from-hint-green/10 dark:from-white/5 to-transparent">
+          <div className="bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border border-gray-100 dark:border-white/10">
+            <div className="px-6 py-4 border-b border-hint-green/30 dark:border-white/10 flex items-center gap-3 bg-gradient-to-r from-hint-green/10 dark:from-white/5 to-transparent rounded-t-xl">
               <div className="w-8 h-8 rounded-full bg-hint-green dark:bg-mosque/20 flex items-center justify-center text-nordic dark:text-mosque">
                 <span className="material-icons text-lg">place</span>
               </div>
@@ -490,36 +574,58 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                 <label htmlFor="location" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">
                   {pf.addressLabel || "Address"} <span className="text-red-500">*</span>
                 </label>
-                {/* Input + Search Button row */}
-                <div className="flex gap-2">
-                  <input
-                    id="location"
-                    type="text"
-                    required
-                    value={address}
-                    onChange={(e) => {
-                      setAddress(e.target.value);
-                      setGeocodeResult(null);
-                      setGeocodeError("");
-                      if (fieldErrors.location) setFieldErrors({ ...fieldErrors, location: false });
-                    }}
-                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleGeocode(); } }}
-                    placeholder={pf.addressPlaceholder || "Street Address, City, Zip"}
-                    className={`flex-1 px-4 py-2.5 rounded-md border bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sf ${
-                      fieldErrors.location
-                        ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
-                        : "border-gray-200 dark:border-white/10"
-                    }`}
-                  />
+                {/* Input + Search button row */}
+                <div className="flex gap-2" ref={suggestionsRef}>
+                  <div className="relative flex-1">
+                    <input
+                      id="location"
+                      type="text"
+                      required
+                      value={address}
+                      onChange={(e) => {
+                        setAddress(e.target.value);
+                        setGeocodeError("");
+                        setShowSuggestions(false);
+                        if (fieldErrors.location) setFieldErrors({ ...fieldErrors, location: false });
+                      }}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleGeocode(); } }}
+                      placeholder={pf.addressPlaceholder || "Street Address, City, Zip"}
+                      className={`w-full px-4 py-2.5 rounded-md border bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sf ${
+                        fieldErrors.location
+                          ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
+                          : "border-gray-200 dark:border-white/10"
+                      }`}
+                    />
+
+                    {/* Dropdown suggestions */}
+                    {showSuggestions && geocodeSuggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 z-[500] mt-1 bg-white dark:bg-[#0d2218] border border-gray-200 dark:border-white/10 rounded-lg shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-100 dark:divide-white/5">
+                        {geocodeSuggestions.map((s, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => handleSelectSuggestion(s)}
+                            className="w-full text-left px-4 py-3 hover:bg-hint-green/20 dark:hover:bg-mosque/20 transition-colors flex items-start gap-2 cursor-pointer"
+                          >
+                            <span className="material-icons text-mosque dark:text-[#4db8a0] text-sm mt-0.5 flex-shrink-0">place</span>
+                            <span className="text-xs text-gray-700 dark:text-white/80 font-sf leading-relaxed">{s.display_name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+
+                  {/* Search button */}
                   <button
                     type="button"
                     onClick={handleGeocode}
                     disabled={isGeocoding || !address.trim()}
                     title={pf.geocodeButton || "Buscar en el mapa"}
-                    className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2.5 rounded-md bg-mosque text-white text-sm font-semibold font-sf hover:bg-mosque/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
+                    className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-md bg-mosque text-white text-sm font-semibold font-sf hover:bg-mosque/80 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                   >
                     <span className={`material-icons text-base ${isGeocoding ? "animate-spin" : ""}`}>
-                      {isGeocoding ? "sync" : "my_location"}
+                      {isGeocoding ? "sync" : "search"}
                     </span>
                     <span className="hidden sm:inline">{isGeocoding ? (pf.geocoding || "Buscando...") : (pf.geocodeButton || "Buscar")}</span>
                   </button>
@@ -541,42 +647,101 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   </div>
                 )}
 
-                {/* Geocode Success Card */}
-                {geocodeResult && (
-                  <div className="mt-3 p-3 rounded-lg bg-hint-green/20 dark:bg-mosque/10 border border-mosque/30 dark:border-mosque/30">
-                    <div className="flex items-start gap-2">
-                      <span className="material-icons text-mosque dark:text-[#4db8a0] text-base mt-0.5 flex-shrink-0">check_circle</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-mosque dark:text-[#4db8a0] font-sf mb-1">
-                          {pf.geocodeConfirmed || "Ubicación confirmada"}
-                        </p>
-                        <p className="text-xs text-gray-600 dark:text-white/60 font-sf leading-relaxed truncate" title={geocodeResult.display_name}>
-                          {geocodeResult.display_name}
-                        </p>
-                        <div className="flex items-center gap-3 mt-2">
-                          <span className="inline-flex items-center gap-1 text-[11px] font-mono bg-white dark:bg-white/10 text-nordic dark:text-white px-2 py-0.5 rounded border border-gray-200 dark:border-white/10">
-                            <span className="text-mosque font-bold">Lat:</span> {geocodeResult.lat.toFixed(6)}
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[11px] font-mono bg-white dark:bg-white/10 text-nordic dark:text-white px-2 py-0.5 rounded border border-gray-200 dark:border-white/10">
-                            <span className="text-mosque font-bold">Lng:</span> {geocodeResult.lng.toFixed(6)}
-                          </span>
-                        </div>
+                {/* Geocode Success / Manual Coords Card */}
+                <div className="mt-3 p-3 rounded-lg bg-hint-green/20 dark:bg-mosque/10 border border-mosque/30 dark:border-mosque/30">
+                  <div className="flex items-start gap-2">
+                    <span className="material-icons text-mosque dark:text-[#4db8a0] text-base mt-0.5 flex-shrink-0">
+                      {geocodeResult ? "check_circle" : "info"}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-mosque dark:text-[#4db8a0] font-sf mb-1">
+                        {geocodeResult ? (pf.geocodeConfirmed || "Ubicación confirmada") : "Selección manual activada"}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-white/60 font-sf leading-relaxed truncate" title={geocodeResult?.display_name || address}>
+                        {geocodeResult?.display_name || address || "Haz clic o arrastra el marcador en el mapa abajo para ubicar"}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-3 mt-2">
+                        <label className="inline-flex items-center gap-1.5 text-[11px] font-mono bg-white dark:bg-white/10 text-nordic dark:text-white px-2 py-1 rounded border border-gray-200 dark:border-white/10 shadow-2xs">
+                          <span className="text-mosque font-bold">Lat:</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={lat ?? (geocodeResult?.lat ?? -34.6037)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) {
+                                setLat(val);
+                                setGeocodeResult((prev) => ({
+                                  display_name: prev?.display_name || address || "Coordenadas editadas",
+                                  lat: val,
+                                  lng: prev?.lng ?? -58.3816,
+                                }));
+                              }
+                            }}
+                            className="w-24 bg-transparent border-0 p-0 focus:ring-0 text-[11px] font-mono font-bold text-nordic dark:text-white"
+                          />
+                        </label>
+                        <label className="inline-flex items-center gap-1.5 text-[11px] font-mono bg-white dark:bg-white/10 text-nordic dark:text-white px-2 py-1 rounded border border-gray-200 dark:border-white/10 shadow-2xs">
+                          <span className="text-mosque font-bold">Lng:</span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={lng ?? (geocodeResult?.lng ?? -58.3816)}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!isNaN(val)) {
+                                setLng(val);
+                                setGeocodeResult((prev) => ({
+                                  display_name: prev?.display_name || address || "Coordenadas editadas",
+                                  lat: prev?.lat ?? -34.6037,
+                                  lng: val,
+                                }));
+                              }
+                            }}
+                            className="w-24 bg-transparent border-0 p-0 focus:ring-0 text-[11px] font-mono font-bold text-nordic dark:text-white"
+                          />
+                        </label>
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
 
-              {/* Map Preview */}
-              <div className="relative h-48 w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 group">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAS55FY7gfArnlTpNsdabJk9nBO5uQJgOwIsl8beO34JRZ9dMmjLoIkTuTUO72Y9L5tUmQqTReQWebUWadAWwLusGmRQiIict5sqY--yRaOxuYpTzfR4vv4RKh1ex6oxY64e0kbSeMudNO6pv-gG0WzVWs-pDfvQm5IoTQ1mT-tAV49LDkXAHZl317M1-D7eZw3N8o2ExKWTgg6oMAXOFVnkApIqnb7TZHekwSw8pWQxpJV2EKI8EQKQbQXJaSbjN8gB1n8b-ueWj8"
-                  alt="Map view of city streets"
-                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500"
+              {/* Map Preview - Always Interactive */}
+              <div className="relative h-56 w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10">
+                <LeafletMapDynamic
+                  lat={lat ?? (geocodeResult?.lat ?? -34.6037)}
+                  lng={lng ?? (geocodeResult?.lng ?? -58.3816)}
+                  zoom={geocodeResult ? 15 : 12}
+                  height="100%"
+                  onLocationSelect={handleMapClick}
                 />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span className="bg-white/90 dark:bg-nordic/90 text-nordic dark:text-white px-3 py-1.5 rounded shadow-sm backdrop-blur-sm text-xs font-bold font-sf flex items-center gap-1">
-                    <span className="material-icons text-sm text-mosque">map</span> {pf.previewMap || "Preview"}
+                {/* Expand and GPS buttons */}
+                <div className="absolute top-2 right-2 z-[400] flex flex-col gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowMapModal(true)}
+                    title={pf.geocodeExpand || "Ver mapa completo"}
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/90 dark:bg-nordic/90 text-nordic dark:text-white shadow-md hover:bg-white dark:hover:bg-nordic/70 transition-all cursor-pointer backdrop-blur-sm"
+                  >
+                    <span className="material-icons text-base">fullscreen</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleGoToMyPosition}
+                    disabled={isLocating}
+                    title="Ir a mi ubicación actual (GPS)"
+                    className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/90 dark:bg-nordic/90 text-nordic dark:text-white shadow-md hover:bg-white dark:hover:bg-nordic/70 transition-all cursor-pointer backdrop-blur-sm disabled:opacity-50"
+                  >
+                    <span className={`material-icons text-base text-mosque ${isLocating ? "animate-spin" : ""}`}>
+                      {isLocating ? "sync" : "my_location"}
+                    </span>
+                  </button>
+                </div>
+
+                <div className="absolute bottom-2 left-2 right-2 z-[400] pointer-events-none flex justify-center">
+                  <span className="bg-white/90 dark:bg-nordic/90 text-nordic dark:text-white px-3 py-1 rounded-full shadow-md text-[11px] font-sf font-medium border border-gray-200/50 dark:border-white/10 backdrop-blur-xs">
+                    💡 Haz clic en el mapa o arrastra el marcador para ubicar
                   </span>
                 </div>
               </div>
@@ -778,6 +943,69 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
           </div>
         </div>
       </form>
+
+      {/* Fullscreen Map Modal */}
+      {showMapModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 sm:p-6 animate-fadeIn">
+          <div className="relative w-full max-w-4xl h-[75vh] bg-white dark:bg-[#0a1a17] rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-white/10 flex flex-col">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10 flex items-center justify-between bg-gray-50 dark:bg-white/5">
+              <div className="flex items-center gap-2 min-w-0 pr-4">
+                <span className="material-icons text-mosque flex-shrink-0">place</span>
+                <h3 className="font-bold text-nordic dark:text-white font-sf text-sm sm:text-base truncate">
+                  {geocodeResult?.display_name || address || "Selecciona una ubicación en el mapa"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMapModal(false)}
+                title="Cerrar mapa"
+                className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/10 text-gray-500 dark:text-white/60 transition-colors cursor-pointer flex-shrink-0"
+              >
+                <span className="material-icons text-lg">close</span>
+              </button>
+            </div>
+            <div className="flex-1 w-full h-full relative">
+              <LeafletMapDynamic 
+                lat={lat ?? (geocodeResult?.lat ?? -34.6037)} 
+                lng={lng ?? (geocodeResult?.lng ?? -58.3816)} 
+                zoom={16} 
+                height="100%" 
+                onLocationSelect={handleMapClick}
+              />
+              <div className="absolute top-3 left-3 z-[400] pointer-events-none">
+                <span className="bg-white/95 dark:bg-nordic/95 text-nordic dark:text-white px-4 py-1.5 rounded-full shadow-lg text-xs font-sf font-semibold border border-gray-200 dark:border-white/10">
+                  💡 Haz clic en cualquier calle o arrastra el pin para ubicar y autocompletar
+                </span>
+              </div>
+              {/* GPS button in Fullscreen Modal */}
+              <button
+                type="button"
+                onClick={handleGoToMyPosition}
+                disabled={isLocating}
+                title="Ir a mi ubicación actual (GPS)"
+                className="absolute bottom-6 right-6 z-[400] flex items-center justify-center w-12 h-12 rounded-full bg-white dark:bg-nordic text-nordic dark:text-white shadow-2xl hover:bg-gray-50 dark:hover:bg-nordic/80 transition-all cursor-pointer border border-gray-200 dark:border-white/10 disabled:opacity-50 group hover:scale-105"
+              >
+                <span className={`material-icons text-2xl text-mosque group-hover:scale-110 transition-transform ${isLocating ? "animate-spin" : ""}`}>
+                  {isLocating ? "sync" : "my_location"}
+                </span>
+              </button>
+            </div>
+            <div className="px-6 py-3 bg-gray-50 dark:bg-white/5 border-t border-gray-200 dark:border-white/10 flex items-center justify-between text-xs font-mono text-gray-500 dark:text-white/60">
+              <div>
+                <span className="font-bold text-mosque">Lat:</span> {(lat ?? (geocodeResult?.lat ?? -34.6037)).toFixed(6)} | <span className="font-bold text-mosque">Lng:</span> {(lng ?? (geocodeResult?.lng ?? -58.3816)).toFixed(6)}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowMapModal(false)}
+                className="px-4 py-1.5 rounded bg-mosque text-white font-sf font-semibold hover:bg-mosque/80 transition-colors cursor-pointer"
+              >
+                Listo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

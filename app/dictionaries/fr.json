@@ -240,6 +240,10 @@
     "errorReqImages": "Vous devez télécharger au moins une image pour publier.",
     "geocodeButton": "Rechercher",
     "geocoding": "Recherche en cours...",
-    "geocodeConfirmed": "Localisation confirmée"
+    "geocodeConfirmed": "Localisation confirmée",
+    "geocodeLocate": "Utiliser ma position",
+    "geocodePickOne": "Sélectionnez une option",
+    "geocodeExpand": "Voir la carte complète"
   }
 }
+

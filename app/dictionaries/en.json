@@ -240,6 +240,10 @@
     "errorReqImages": "You must upload at least one image to publish.",
     "geocodeButton": "Search",
     "geocoding": "Searching...",
-    "geocodeConfirmed": "Location confirmed"
+    "geocodeConfirmed": "Location confirmed",
+    "geocodeLocate": "Use my location",
+    "geocodePickOne": "Select an option",
+    "geocodeExpand": "View full map"
   }
 }
+

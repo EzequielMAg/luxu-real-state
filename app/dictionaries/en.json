@@ -232,6 +232,7 @@
     "errorReqTitle": "This field is mandatory for publishing.",
     "errorReqPrice": "Enter a valid price greater than 0.",
     "errorReqAddress": "Address is mandatory for publishing.",
-    "errorReqArea": "Area is mandatory for publishing."
+    "errorReqArea": "Area is mandatory for publishing.",
+    "errorReqImages": "You must upload at least one image to publish."
   }
 }

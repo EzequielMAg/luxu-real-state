@@ -64,6 +64,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
         const res = await uploadPropertyImage(formData);
         if (res.success && res.url) {
           newImages.push(res.url);
+          if (fieldErrors.gallery) setFieldErrors((prev) => ({ ...prev, gallery: false }));
         } else {
           setErrorMessage(`${pf.errorUpload || "Error uploading image"} (${file.name}): ${res.error}`);
         }
@@ -95,6 +96,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
     if (!price || Number(price) <= 0) errors.price = true;
     if (!address.trim()) errors.location = true;
     if (!size.trim() || Number(size) <= 0 || size === "0") errors.area = true;
+    if (images.length === 0) errors.gallery = true;
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -124,7 +126,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
       beds,
       baths,
       parking,
-      images: images.length > 0 ? images : ["https://lh3.googleusercontent.com/aida-public/AB6AXuBZW0qbk7lfvNbdW7E2-JlNvoGiYxd_IFtXs-LfvSnOmMtH8ioaZBs2p82ENkCdRf_ix_zKpdGhOcuHfniuiBJrRDyErAFReMdAHvRnerfSzOyzSUbKvgYTybWysd6hjrQ4ZHMu3lMROjFcEx5IowvtKFZJy7Wv_AnfQ-q-B48VHLKzKhOvavGIGfN-psB9c2CO70k5peXj1HbAL-Lg-aGaK3jNgUS3Dh3V_zz6GKj4inq3dsGTc_tJsANMwh0G0YovWbq0luzYzNo"],
+      images,
       amenities,
       lat: initialData?.lat || 37.4419,
       lng: initialData?.lng || -122.143,
@@ -344,13 +346,17 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
           </div>
 
           {/* Gallery Box */}
-          <div className="bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border border-gray-100 dark:border-white/10 overflow-hidden">
+          <div id="gallery" className={`bg-white dark:bg-[#0a1a17] rounded-xl shadow-sm border overflow-hidden transition-all ${
+            fieldErrors.gallery
+              ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/10 dark:bg-red-900/10"
+              : "border-gray-100 dark:border-white/10"
+          }`}>
             <div className="px-8 py-6 border-b border-hint-green/30 dark:border-white/10 flex justify-between items-center bg-gradient-to-r from-hint-green/10 dark:from-white/5 to-transparent">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-hint-green dark:bg-mosque/20 flex items-center justify-center text-nordic dark:text-mosque">
                   <span className="material-icons text-lg">image</span>
                 </div>
-                <h2 className="text-xl font-bold text-nordic dark:text-white">{pf.galleryTitle || "Gallery"}</h2>
+                <h2 className="text-xl font-bold text-nordic dark:text-white">{pf.galleryTitle || "Gallery"} <span className="text-red-500">*</span></h2>
               </div>
               <span className="text-xs font-medium text-gray-500 dark:text-white/40 bg-gray-100 dark:bg-white/10 px-2 py-1 rounded font-sf">
                 {pf.gallerySubtitle || "JPG, PNG, WEBP"}
@@ -416,6 +422,13 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   <span className="text-xs mt-1 font-medium font-sf">{pf.addMoreBtn || "Add More"}</span>
                 </label>
               </div>
+
+              {fieldErrors.gallery && (
+                <p className="text-xs text-red-500 dark:text-red-400 font-medium mt-4 flex items-center gap-1.5 animate-pulse">
+                  <span className="material-icons text-sm">error_outline</span>
+                  {pf.errorReqImages || "Debes subir al menos una imagen para publicar."}
+                </p>
+              )}
             </div>
           </div>
         </div>

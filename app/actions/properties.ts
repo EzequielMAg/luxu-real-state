@@ -270,6 +270,9 @@ export async function createProperty(
     if (!payload.size || !payload.size.trim() || Number(payload.size) <= 0 || payload.size === "0" || payload.size === "2500") {
       return { success: false, error: "El área de la propiedad es obligatoria y debe ser mayor a 0." };
     }
+    if (!payload.images || !Array.isArray(payload.images) || payload.images.length === 0) {
+      return { success: false, error: "Debes subir al menos una imagen para publicar la propiedad." };
+    }
 
     const title = payload.title.trim();
     const slug = payload.slug || generateSlug(title);
@@ -322,6 +325,9 @@ export async function updateProperty(
     }
     if (payload.size !== undefined && (!payload.size || !payload.size.trim() || Number(payload.size) <= 0 || payload.size === "0" || payload.size === "2500")) {
       return { success: false, error: "El área de la propiedad es obligatoria y debe ser mayor a 0." };
+    }
+    if (payload.images !== undefined && (!Array.isArray(payload.images) || payload.images.length === 0)) {
+      return { success: false, error: "La propiedad debe tener al menos una imagen." };
     }
 
     // Remove immutable fields if present

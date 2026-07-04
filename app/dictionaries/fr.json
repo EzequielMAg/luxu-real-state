@@ -167,7 +167,11 @@
     "sqftLabel": "m²",
     "statusForSale": "À Vendre",
     "statusForRent": "À Louer",
-    "noPropertiesFound": "Aucune propriété trouvée."
+    "noPropertiesFound": "Aucune propriété trouvée.",
+    "successTitleCreated": "Propriété Créée !",
+    "successCreated": "La propriété a été enregistrée et publiée avec succès dans le catalogue.",
+    "successTitleUpdated": "Modifications Enregistrées !",
+    "successUpdated": "Les détails et les spécifications de la propriété ont été mis à jour avec succès."
   },
   "propertyForm": {
     "breadcrumbProperties": "Propriétés",

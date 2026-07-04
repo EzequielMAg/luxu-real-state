@@ -167,7 +167,11 @@
     "sqftLabel": "sqft",
     "statusForSale": "For Sale",
     "statusForRent": "For Rent",
-    "noPropertiesFound": "No properties found."
+    "noPropertiesFound": "No properties found.",
+    "successTitleCreated": "Property Created!",
+    "successCreated": "The property has been successfully registered and published in the catalog.",
+    "successTitleUpdated": "Changes Saved!",
+    "successUpdated": "The property details and specifications have been successfully updated."
   },
   "propertyForm": {
     "breadcrumbProperties": "Properties",

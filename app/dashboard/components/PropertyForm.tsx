@@ -135,6 +135,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
     };
 
     try {
+      let savedId = initialData?.id;
       if (isEdit && initialData?.id) {
         const res = await updateProperty(initialData.id, payload);
         if (!res.success) {
@@ -149,8 +150,10 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
           setIsSubmitting(false);
           return;
         }
+        if (res.id) savedId = res.id;
       }
-      router.push("/dashboard");
+      const actionType = isEdit ? "update" : "create";
+      router.push(`/dashboard?success=${actionType}${savedId ? `&highlight=${savedId}` : ""}`);
       router.refresh();
     } catch (err: any) {
       setErrorMessage(err.message || (pf.errorUnexpected || "An unexpected error occurred."));

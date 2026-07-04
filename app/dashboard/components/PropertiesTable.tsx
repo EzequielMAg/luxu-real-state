@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Property } from "@/app/types/property";
@@ -40,6 +41,39 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
   const [isPending, startTransition] = useTransition();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
+  const searchParams = useSearchParams();
+  const highlightedId = searchParams?.get("highlight");
+  const successType = searchParams?.get("success");
+
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    if (successType) {
+      const msg = successType === "create"
+        ? (d.successCreated || "La propiedad se ha registrado y publicado con éxito en el catálogo.")
+        : (d.successUpdated || "Los datos y especificaciones de la propiedad han sido actualizados con éxito.");
+      setSuccessMessage(msg);
+      setShowSuccessModal(true);
+
+      const timer = setTimeout(() => {
+        setShowSuccessModal(false);
+      }, 7000);
+      return () => clearTimeout(timer);
+    }
+  }, [successType, d]);
+
+  useEffect(() => {
+    if (highlightedId) {
+      const el = document.getElementById(`property-row-${highlightedId}`);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 300);
+      }
+    }
+  }, [highlightedId]);
+
   const handleToggleFeatured = (property: Property) => {
     setLoadingId(property.id);
     startTransition(async () => {
@@ -74,7 +108,12 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
             return (
               <tr
                 key={property.id}
-                className="hover:bg-gray-50/50 dark:hover:bg-white/2 transition-colors"
+                id={`property-row-${property.id}`}
+                className={`transition-all duration-700 ${
+                  property.id === highlightedId
+                    ? "bg-mosque/15 dark:bg-mosque/20 ring-2 ring-mosque/50 shadow-md font-medium"
+                    : "hover:bg-gray-50/50 dark:hover:bg-white/2"
+                }`}
               >
                 {/* Property Details: image + info + specs */}
                 <td className="px-6 py-4">
@@ -208,6 +247,30 @@ export default function PropertiesTable({ properties }: PropertiesTableProps) {
             apartment
           </span>
           <p className="font-medium">{d.noPropertiesFound || "No properties found."}</p>
+        </div>
+      )}
+
+      {/* Floating Success Toast / Modal */}
+      {showSuccessModal && (
+        <div className="fixed bottom-6 right-6 z-50 animate-bounce-in max-w-md w-full bg-white dark:bg-[#0a1a17] border-2 border-mosque dark:border-[#4db8a0] rounded-2xl p-5 shadow-2xl flex items-start gap-4 backdrop-blur-md transition-all">
+          <div className="w-10 h-10 rounded-full bg-mosque/20 dark:bg-mosque/30 flex items-center justify-center text-mosque dark:text-[#4db8a0] flex-shrink-0 mt-0.5 shadow-inner">
+            <span className="material-icons text-xl">check_circle</span>
+          </div>
+          <div className="flex-1">
+            <h4 className="text-base font-bold text-nordic dark:text-white font-sf flex items-center gap-2">
+              {successType === "create" ? (d.successTitleCreated || "¡Propiedad Creada!") : (d.successTitleUpdated || "¡Cambios Guardados!")}
+            </h4>
+            <p className="text-sm text-gray-600 dark:text-white/70 mt-1 font-sf leading-relaxed">
+              {successMessage}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSuccessModal(false)}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 cursor-pointer"
+          >
+            <span className="material-icons text-base">close</span>
+          </button>
         </div>
       )}
     </div>

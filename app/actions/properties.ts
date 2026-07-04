@@ -258,7 +258,17 @@ export async function createProperty(
   try {
     const adminClient = getAdminSupabase();
 
-    const title = payload.title || "Untitled Property";
+    if (!payload.title || !payload.title.trim()) {
+      return { success: false, error: "El título de la propiedad es obligatorio." };
+    }
+    if (!payload.price || Number(payload.price) <= 0) {
+      return { success: false, error: "El precio debe ser un número mayor a 0." };
+    }
+    if (!payload.address || !payload.address.trim() || payload.address === "Specified Address") {
+      return { success: false, error: "La dirección de la propiedad es obligatoria." };
+    }
+
+    const title = payload.title.trim();
     const slug = payload.slug || generateSlug(title);
 
     const insertData = {
@@ -297,6 +307,16 @@ export async function updateProperty(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const adminClient = getAdminSupabase();
+
+    if (payload.title !== undefined && (!payload.title || !payload.title.trim())) {
+      return { success: false, error: "El título de la propiedad es obligatorio." };
+    }
+    if (payload.price !== undefined && (!payload.price || Number(payload.price) <= 0)) {
+      return { success: false, error: "El precio debe ser un número mayor a 0." };
+    }
+    if (payload.address !== undefined && (!payload.address || !payload.address.trim() || payload.address === "Specified Address")) {
+      return { success: false, error: "La dirección de la propiedad es obligatoria." };
+    }
 
     // Remove immutable fields if present
     const { id: _id, created_at: _created, ...updateFields } = payload as any;

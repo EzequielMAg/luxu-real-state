@@ -228,6 +228,9 @@
       "Private Gym & Spa": "Gimnasio y Spa Privados",
       "24/7 Perimeter Security": "Seguridad Perimetral 24/7"
     },
-    "footerTip": "Verifica todos los campos obligatorios (*) antes de guardar."
+    "footerTip": "Verifica todos los campos obligatorios (*) antes de guardar.",
+    "errorReqTitle": "Este campo es obligatorio para publicar.",
+    "errorReqPrice": "Ingresa un precio válido mayor a 0.",
+    "errorReqAddress": "La dirección es obligatoria para publicar."
   }
 }

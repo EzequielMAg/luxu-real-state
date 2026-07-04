@@ -93,6 +93,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
     const errors: Record<string, boolean> = {};
     if (!title.trim()) errors.title = true;
     if (!price || Number(price) <= 0) errors.price = true;
+    if (!address.trim()) errors.location = true;
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -116,7 +117,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
       action,
       type,
       description,
-      address: address || "Specified Address",
+      address: address.trim(),
       size: size || "2500",
       year_built: yearBuilt ? Number(yearBuilt) : undefined,
       beds,
@@ -431,16 +432,30 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
             <div className="p-6 space-y-4">
               <div>
                 <label htmlFor="location" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">
-                  {pf.addressLabel || "Address"}
+                  {pf.addressLabel || "Address"} <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="location"
                   type="text"
+                  required
                   value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    if (fieldErrors.location) setFieldErrors({ ...fieldErrors, location: false });
+                  }}
                   placeholder={pf.addressPlaceholder || "Street Address, City, Zip"}
-                  className="w-full px-4 py-2.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sf"
+                  className={`w-full px-4 py-2.5 rounded-md border bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-sm font-sf ${
+                    fieldErrors.location
+                      ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
+                      : "border-gray-200 dark:border-white/10"
+                  }`}
                 />
+                {fieldErrors.location && (
+                  <p className="text-xs text-red-500 dark:text-red-400 font-medium mt-1.5 flex items-center gap-1.5 animate-pulse">
+                    <span className="material-icons text-sm">error_outline</span>
+                    {pf.errorReqAddress || "La dirección es obligatoria para publicar."}
+                  </p>
+                )}
               </div>
               <div className="relative h-48 w-full rounded-lg overflow-hidden bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 group">
                 <img

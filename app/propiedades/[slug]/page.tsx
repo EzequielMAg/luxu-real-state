@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Script from "next/script";
 import { cookies } from "next/headers";
 import Navbar from "@/app/components/Navbar";
 import PropertyGallery from "@/app/components/PropertyGallery";
@@ -153,7 +154,8 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
       <Navbar />
 
       {/* Rich Snippet Injected into DOM */}
-      <script
+      <Script
+        id="property-jsonld"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

@@ -143,7 +143,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
 
   return (
     <div className="max-w-7xl mx-auto py-6">
-      <header className="sticky top-16 z-30 bg-[#f0f4f1]/95 dark:bg-[#0d1f1b]/95 backdrop-blur-md py-4 px-6 -mx-6 rounded-b-xl mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-200/80 dark:border-white/10 shadow-sm transition-all">
+      <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-200 dark:border-white/10 pb-8">
         <div className="space-y-4">
           <nav aria-label="Breadcrumb" className="flex">
             <ol className="flex items-center space-x-2 text-sm text-gray-500 dark:text-white/40 font-medium font-sf">
@@ -170,24 +170,6 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                 : (pf.subtitleNew || "Fill in the details below to create a new listing. Fields marked with * are mandatory.")}
             </p>
           </div>
-        </div>
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            className="px-5 py-2.5 rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white hover:bg-gray-50 dark:hover:bg-white/10 transition-colors font-medium font-sf text-sm cursor-pointer"
-          >
-            {pf.cancelBtn || "Cancel"}
-          </button>
-          <button
-            type="submit"
-            form="property-form"
-            disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-lg bg-mosque hover:bg-nordic dark:hover:bg-[#11302b] text-white font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-sf text-sm cursor-pointer disabled:opacity-50"
-          >
-            <span className="material-icons text-sm">save</span>
-            {isSubmitting ? (pf.savingBtn || "Saving...") : (pf.saveBtn || "Save Property")}
-          </button>
         </div>
       </header>
 
@@ -580,8 +562,8 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
           </div>
         </div>
 
-        {/* Desktop & Mobile Bottom Action Bar inside Form */}
-        <div className="xl:col-span-12 mt-4 bg-white dark:bg-[#0a1a17] rounded-xl p-6 border border-gray-200 dark:border-white/10 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Sticky Bottom Action Bar accompanying scroll */}
+        <div className="xl:col-span-12 sticky bottom-0 sm:bottom-4 z-30 mt-6 bg-white/95 dark:bg-[#0a1a17]/95 backdrop-blur-md rounded-t-xl sm:rounded-xl p-4 sm:p-6 border border-gray-200/80 dark:border-white/10 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 transition-all">
           <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-white/60 font-sf">
             <div className="w-8 h-8 rounded-full bg-mosque/10 text-mosque flex items-center justify-center flex-shrink-0">
               <span className="material-icons text-base">info</span>
@@ -605,24 +587,6 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
               {isSubmitting ? (pf.savingBtn || "Saving...") : (pf.saveBtn || "Save Property")}
             </button>
           </div>
-        </div>
-
-        {/* Mobile Fixed Action Bar */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-[#0a1a17] border-t border-gray-200 dark:border-white/10 shadow-xl md:hidden z-40 flex gap-3">
-          <button
-            type="button"
-            onClick={() => router.push("/dashboard")}
-            className="flex-1 py-3 rounded-lg border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white font-medium font-sf"
-          >
-            {pf.cancelBtn || "Cancel"}
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex-1 py-3 rounded-lg bg-mosque text-white font-medium font-sf flex justify-center items-center gap-2 disabled:opacity-50"
-          >
-            {isSubmitting ? (pf.savingBtn || "Saving...") : (pf.saveMobileBtn || "Save")}
-          </button>
         </div>
       </form>
     </div>

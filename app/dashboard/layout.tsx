@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DashboardNavbar from "@/app/dashboard/components/DashboardNavbar";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Layout del dashboard: navbar horizontal en la parte superior.
  * Segunda capa de defensa: verifica sesión + rol admin.

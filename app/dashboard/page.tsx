@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getProperties } from "@/app/actions/properties";
 import { getDictionary, hasLocale, defaultLocale, Locale } from "@/app/dictionaries";
 import { cookies } from "next/headers";
@@ -103,7 +104,9 @@ export default async function DashboardPage({
 
       {/* Table Card */}
       <div className="bg-white dark:bg-[#0a1a17] rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden">
-        <PropertiesTable properties={properties} />
+        <Suspense fallback={<div className="p-8 text-center text-gray-500 dark:text-white/40 font-sans">Cargando propiedades...</div>}>
+          <PropertiesTable properties={properties} />
+        </Suspense>
 
         {/* Pagination Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-white/5">

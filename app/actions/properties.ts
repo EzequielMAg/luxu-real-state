@@ -190,8 +190,8 @@ export async function togglePropertyActive(
     return { success: false, error: error.message };
   }
 
-  revalidatePath("/dashboard");
-  revalidatePath("/");
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -336,8 +336,8 @@ export async function createProperty(
       return { success: false, error: error.message };
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath("/");
+    revalidatePath("/dashboard", "layout");
+    revalidatePath("/", "layout");
     return { success: true, id: data?.id };
   } catch (err: any) {
     console.error("Exception in createProperty:", err);
@@ -384,10 +384,10 @@ export async function updateProperty(
       return { success: false, error: error.message };
     }
 
-    revalidatePath("/dashboard");
-    revalidatePath("/");
+    revalidatePath("/dashboard", "layout");
+    revalidatePath("/", "layout");
     if (payload.slug) {
-      revalidatePath(`/propiedades/${payload.slug}`);
+      revalidatePath(`/propiedades/${payload.slug}`, "layout");
     }
     return { success: true };
   } catch (err: any) {

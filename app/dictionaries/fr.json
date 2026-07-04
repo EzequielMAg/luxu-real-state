@@ -227,6 +227,7 @@
       "Electric Vehicle Charging": "Borne de Recharge Électrique",
       "Private Gym & Spa": "Salle de Sport & Spa Privés",
       "24/7 Perimeter Security": "Sécurité Périmétrique 24/7"
-    }
+    },
+    "footerTip": "Vérifiez tous les champs obligatoires (*) avant d'enregistrer."
   }
 }

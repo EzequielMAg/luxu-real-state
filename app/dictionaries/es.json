@@ -227,6 +227,7 @@
       "Electric Vehicle Charging": "Carga para Vehículo Eléctrico",
       "Private Gym & Spa": "Gimnasio y Spa Privados",
       "24/7 Perimeter Security": "Seguridad Perimetral 24/7"
-    }
+    },
+    "footerTip": "Verifica todos los campos obligatorios (*) antes de guardar."
   }
 }

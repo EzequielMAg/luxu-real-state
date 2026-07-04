@@ -227,6 +227,7 @@
       "Electric Vehicle Charging": "Electric Vehicle Charging",
       "Private Gym & Spa": "Private Gym & Spa",
       "24/7 Perimeter Security": "24/7 Perimeter Security"
-    }
+    },
+    "footerTip": "Double-check all mandatory fields (*) before saving."
   }
 }

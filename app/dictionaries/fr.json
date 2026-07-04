@@ -86,6 +86,7 @@
     "calculateMortgage": "Calculer l'Hypothèque",
     "viewAllPhotos": "Voir toutes les photos ({count})",
     "viewOnGoogleMaps": "Voir sur Google Maps",
+    "closeMap": "Fermer la carte",
     "allRightsReserved": "© 2026 LuxeEstate Inc. Tous droits réservés."
   },
   "pagination": {

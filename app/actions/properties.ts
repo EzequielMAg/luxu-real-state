@@ -148,7 +148,8 @@ export async function togglePropertyFeatured(
   propertyId: string,
   currentFeaturedStatus: boolean
 ): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
+  const adminClient = getAdminSupabase();
+  const { error } = await adminClient
     .from("properties")
     .update({ is_featured: !currentFeaturedStatus })
     .eq("id", propertyId);
@@ -158,8 +159,9 @@ export async function togglePropertyFeatured(
     return { success: false, error: error.message };
   }
 
-  // Revalidate the home page so lists are updated immediately
-  revalidatePath("/");
+  // Revalidate all pages so lists are updated immediately
+  revalidatePath("/", "layout");
+  revalidatePath("/dashboard", "layout");
   return { success: true };
 }
 

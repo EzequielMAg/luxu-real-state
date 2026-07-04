@@ -113,7 +113,7 @@ export default function Navbar() {
             </a>
             <a
               className="text-nordic-dark/70 hover:text-nordic-dark font-medium text-sm hover:border-b-2 hover:border-nordic-dark/20 px-1 py-1 transition-all"
-              href="#"
+              href="/#featured-collections"
             >
               {t.nav.saved}
             </a>
@@ -250,7 +250,7 @@ export default function Navbar() {
           </a>
           <a
             className="block px-3 py-2 rounded-md text-base font-medium text-nordic-dark hover:bg-nordic-dark/5"
-            href="#"
+            href="/#featured-collections"
           >
             {t.nav.saved}
           </a>

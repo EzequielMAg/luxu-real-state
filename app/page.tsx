@@ -87,7 +87,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
         {/* Featured Collections Section */}
         {!isFilterOrSearchApplied && (
-          <section className="mb-16">
+          <section id="featured-collections" className="mb-16 scroll-mt-24">
             <div className="flex items-end justify-between mb-8">
               <div>
                 <h2 className="text-2xl font-light text-nordic-dark">
@@ -99,7 +99,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               </div>
               <a
                 className="hidden sm:flex items-center gap-1 text-sm font-medium text-mosque hover:opacity-70 transition-opacity"
-                href="#"
+                href="/#featured-collections"
               >
                 {t.properties.viewAll}{" "}
                 <span className="material-icons text-sm">arrow_forward</span>

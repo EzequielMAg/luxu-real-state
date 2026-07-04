@@ -45,6 +45,7 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -89,13 +90,25 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !price) {
-      setErrorMessage(pf.errorMandatory || "Please fill in mandatory fields (Title and Price).");
+    const errors: Record<string, boolean> = {};
+    if (!title.trim()) errors.title = true;
+    if (!price || Number(price) <= 0) errors.price = true;
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      setErrorMessage(pf.errorMandatory || "Por favor completa los campos obligatorios resaltados en rojo.");
+      const firstKey = Object.keys(errors)[0];
+      const firstEl = document.getElementById(firstKey);
+      if (firstEl) {
+        firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        firstEl.focus();
+      }
       return;
     }
 
     setIsSubmitting(true);
     setErrorMessage("");
+    setFieldErrors({});
 
     const payload: Partial<Property> = {
       title,
@@ -174,12 +187,22 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
       </header>
 
       {errorMessage && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm font-sf">
-          {errorMessage}
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-300 text-sm font-sf flex items-center gap-3 shadow-md animate-pulse">
+          <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
+            <span className="material-icons text-base">warning</span>
+          </div>
+          <span className="flex-1 font-medium">{errorMessage}</span>
+          <button
+            type="button"
+            onClick={() => setErrorMessage("")}
+            className="text-red-400 hover:text-red-600 dark:hover:text-red-200 transition-colors cursor-pointer"
+          >
+            <span className="material-icons text-sm">close</span>
+          </button>
         </div>
       )}
 
-      <form id="property-form" onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+      <form id="property-form" noValidate onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
         {/* Left Column (8 cols) */}
         <div className="xl:col-span-8 space-y-8">
           {/* Basic Information Box */}
@@ -200,10 +223,23 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                   type="text"
                   required
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (fieldErrors.title) setFieldErrors({ ...fieldErrors, title: false });
+                  }}
                   placeholder={pf.propertyTitlePlaceholder || "e.g. Modern Penthouse with Ocean View"}
-                  className="w-full text-base px-4 py-2.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sf"
+                  className={`w-full text-base px-4 py-2.5 rounded-md border bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all font-sf ${
+                    fieldErrors.title
+                      ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
+                      : "border-gray-200 dark:border-white/10"
+                  }`}
                 />
+                {fieldErrors.title && (
+                  <p className="text-xs text-red-500 dark:text-red-400 font-medium mt-1.5 flex items-center gap-1.5 animate-pulse">
+                    <span className="material-icons text-sm">error_outline</span>
+                    {pf.errorReqTitle || "Este campo es obligatorio para publicar."}
+                  </p>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
@@ -217,11 +253,24 @@ export default function PropertyForm({ initialData }: PropertyFormProps) {
                       type="number"
                       required
                       value={price}
-                      onChange={(e) => setPrice(e.target.value)}
+                      onChange={(e) => {
+                        setPrice(e.target.value);
+                        if (fieldErrors.price) setFieldErrors({ ...fieldErrors, price: false });
+                      }}
                       placeholder="0.00"
-                      className="w-full pl-7 pr-4 py-2.5 rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-medium font-sf"
+                      className={`w-full pl-7 pr-4 py-2.5 rounded-md border bg-white dark:bg-white/5 text-nordic dark:text-white placeholder-gray-400 dark:placeholder-white/30 focus:ring-1 focus:ring-mosque focus:border-mosque transition-all text-base font-medium font-sf ${
+                        fieldErrors.price
+                          ? "border-red-500 dark:border-red-500 ring-2 ring-red-500/20 bg-red-50/50 dark:bg-red-900/10"
+                          : "border-gray-200 dark:border-white/10"
+                      }`}
                     />
                   </div>
+                  {fieldErrors.price && (
+                    <p className="text-xs text-red-500 dark:text-red-400 font-medium mt-1.5 flex items-center gap-1.5 animate-pulse">
+                      <span className="material-icons text-sm">error_outline</span>
+                      {pf.errorReqPrice || "Ingresa un precio válido mayor a 0."}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="status" className="block text-sm font-medium text-nordic dark:text-white mb-1.5 font-sf">

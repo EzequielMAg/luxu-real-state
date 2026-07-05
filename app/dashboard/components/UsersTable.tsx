@@ -144,7 +144,7 @@ export default function UsersTable({ users, currentUserId }: UsersTableProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-8 border-b border-gray-200 dark:border-white/10">
+      <div className="flex items-center gap-4 sm:gap-8 border-b border-gray-200 dark:border-white/10 overflow-x-auto no-scrollbar">
         {TABS.map((tab) => (
           <button
             key={tab}
@@ -183,7 +183,7 @@ export default function UsersTable({ users, currentUserId }: UsersTableProps) {
           return (
             <div
               key={user.user_id}
-              className={`grid grid-cols-1 lg:grid-cols-12 items-center gap-4 p-5 rounded-2xl border transition-all ${
+              className={`grid grid-cols-1 lg:grid-cols-12 items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl border transition-all ${
                 isHighlighted
                   ? "bg-[#eef7f3] dark:bg-[#112722] border-mosque/30 dark:border-mosque/40 shadow-sm"
                   : "bg-white dark:bg-[#0e211e] border-gray-200 dark:border-white/10 hover:border-mosque/20"

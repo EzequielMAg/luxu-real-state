@@ -105,7 +105,7 @@ export default function Hero() {
     <section className="py-12 md:py-16">
       <div className="max-w-3xl mx-auto text-center space-y-8">
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-light text-nordic-dark leading-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-nordic-dark leading-tight px-4 sm:px-0">
           {t.hero.title1}{" "}
           <span className="relative inline-block">
             <span className="relative z-10 font-medium">{t.hero.titleAccent}</span>
@@ -130,7 +130,7 @@ export default function Hero() {
           </div>
           <input
             name="search"
-            className="block w-full pl-12 pr-28 py-4 rounded-xl border-none bg-card-bg text-nordic-dark shadow-soft placeholder-nordic-muted/60 focus:ring-2 focus:ring-mosque focus:bg-card-bg transition-all text-lg outline-none"
+            className="block w-full pl-11 pr-24 sm:pl-12 sm:pr-28 py-3.5 sm:py-4 rounded-xl border-none bg-card-bg text-nordic-dark shadow-soft placeholder-nordic-muted/60 focus:ring-2 focus:ring-mosque focus:bg-card-bg transition-all text-base sm:text-lg outline-none"
             placeholder={t.hero.locationPlaceholder}
             type="text"
             defaultValue={searchQuery}
@@ -138,7 +138,7 @@ export default function Hero() {
           />
           <button
             type="submit"
-            className="absolute inset-y-2 right-2 px-6 bg-mosque hover:bg-mosque/90 text-white font-medium rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-mosque/20 cursor-pointer"
+            className="absolute inset-y-1.5 sm:inset-y-2 right-1.5 sm:right-2 px-4 sm:px-6 bg-mosque hover:bg-mosque/90 text-white font-medium text-sm sm:text-base rounded-lg transition-colors flex items-center justify-center shadow-lg shadow-mosque/20 cursor-pointer"
           >
             {t.hero.searchBtn}
           </button>
@@ -154,7 +154,7 @@ export default function Hero() {
               <button
                 key={category}
                 onClick={() => updateParam("type", category)}
-                className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer ${
+                className={`whitespace-nowrap px-3.5 py-1.5 sm:px-5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
                   isActive
                     ? "bg-mosque text-white shadow-lg shadow-mosque/10 hover:-translate-y-0.5"
                     : "bg-card-bg border border-nordic-dark/5 text-nordic-muted hover:text-nordic-dark hover:border-mosque/50 hover:bg-mosque/5"
@@ -169,9 +169,9 @@ export default function Hero() {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="whitespace-nowrap flex items-center gap-1 px-4 py-2 rounded-full text-nordic-dark font-medium text-sm hover:bg-nordic-dark/5 transition-colors cursor-pointer"
+            className="whitespace-nowrap flex items-center gap-1 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-nordic-dark font-medium text-xs sm:text-sm hover:bg-nordic-dark/5 transition-colors cursor-pointer"
           >
-            <span className="material-icons text-base">tune</span> {t.hero.advancedFiltersBtn}
+            <span className="material-icons text-sm sm:text-base">tune</span> {t.hero.advancedFiltersBtn}
           </button>
         </div>
       </div>

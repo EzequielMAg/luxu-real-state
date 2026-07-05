@@ -120,11 +120,11 @@ export default function Navbar() {
           </div>
 
           {/* Right Icons */}
-          <div className="flex items-center space-x-3 sm:space-x-5">
-            <button className="text-nordic-dark hover:text-mosque transition-colors" title="Buscar / Search">
+          <div className="flex items-center gap-1.5 sm:gap-4">
+            <button className="hidden sm:block text-nordic-dark hover:text-mosque transition-colors" title="Buscar / Search">
               <span className="material-icons">search</span>
             </button>
-            <button className="text-nordic-dark hover:text-mosque transition-colors relative" title="Notificaciones / Notifications">
+            <button className="hidden sm:block text-nordic-dark hover:text-mosque transition-colors relative" title="Notificaciones / Notifications">
               <span className="material-icons">notifications_none</span>
               <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-background-light"></span>
             </button>

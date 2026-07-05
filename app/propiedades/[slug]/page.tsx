@@ -246,40 +246,40 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
           {/* Bottom Content Area (col-span-8 row-start-2 -mt-8 space-y-8) */}
           <div className="lg:col-span-8 lg:row-start-2 -mt-8 space-y-8">
             {/* Property Features */}
-            <div className="bg-card-bg p-8 rounded-xl shadow-sm border border-nordic-dark/10">
+            <div className="bg-card-bg p-4 sm:p-8 rounded-xl shadow-sm border border-nordic-dark/10">
               <h2 className="text-lg font-semibold mb-6 text-nordic-dark">
                 {t.properties.featuresTitle}
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="flex flex-col items-center justify-center p-4 bg-mosque/5 rounded-lg border border-mosque/10">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+                <div className="flex flex-col items-center justify-center p-3 sm:p-4 bg-mosque/5 rounded-lg border border-mosque/10">
                   <span className="material-icons text-mosque text-2xl mb-2">
                     square_foot
                   </span>
                   <span className="text-xl font-bold text-nordic-dark">{property.size}</span>
-                  <span className="text-xs uppercase tracking-wider text-nordic-muted">
+                  <span className="text-xs uppercase tracking-wider text-nordic-muted text-center">
                     {t.properties.totalArea}
                   </span>
                 </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-mosque/5 rounded-lg border border-mosque/10">
+                <div className="flex flex-col items-center justify-center p-3 sm:p-4 bg-mosque/5 rounded-lg border border-mosque/10">
                   <span className="material-icons text-mosque text-2xl mb-2">bed</span>
                   <span className="text-xl font-bold text-nordic-dark">{property.beds}</span>
-                  <span className="text-xs uppercase tracking-wider text-nordic-muted">
+                  <span className="text-xs uppercase tracking-wider text-nordic-muted text-center">
                     {t.properties.bedrooms}
                   </span>
                 </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-mosque/5 rounded-lg border border-mosque/10">
+                <div className="flex flex-col items-center justify-center p-3 sm:p-4 bg-mosque/5 rounded-lg border border-mosque/10">
                   <span className="material-icons text-mosque text-2xl mb-2">shower</span>
                   <span className="text-xl font-bold text-nordic-dark">{property.baths}</span>
-                  <span className="text-xs uppercase tracking-wider text-nordic-muted">
+                  <span className="text-xs uppercase tracking-wider text-nordic-muted text-center">
                     {t.properties.bathrooms}
                   </span>
                 </div>
-                <div className="flex flex-col items-center justify-center p-4 bg-mosque/5 rounded-lg border border-mosque/10">
+                <div className="flex flex-col items-center justify-center p-3 sm:p-4 bg-mosque/5 rounded-lg border border-mosque/10">
                   <span className="material-icons text-mosque text-2xl mb-2">
                     directions_car
                   </span>
                   <span className="text-xl font-bold text-nordic-dark">2</span>
-                  <span className="text-xs uppercase tracking-wider text-nordic-muted">
+                  <span className="text-xs uppercase tracking-wider text-nordic-muted text-center">
                     {t.properties.garage}
                   </span>
                 </div>
@@ -287,7 +287,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
             </div>
 
             {/* About this home */}
-            <div className="bg-card-bg p-8 rounded-xl shadow-sm border border-nordic-dark/10">
+            <div className="bg-card-bg p-4 sm:p-8 rounded-xl shadow-sm border border-nordic-dark/10">
               <h2 className="text-lg font-semibold mb-4 text-nordic-dark">
                 {t.properties.aboutTitle}
               </h2>
@@ -298,7 +298,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
             </div>
 
             {/* Amenities Grid */}
-            <div className="bg-card-bg p-8 rounded-xl shadow-sm border border-nordic-dark/10">
+            <div className="bg-card-bg p-4 sm:p-8 rounded-xl shadow-sm border border-nordic-dark/10">
               <h2 className="text-lg font-semibold mb-6 text-nordic-dark">{t.filters.amenities}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
                 {[
@@ -320,7 +320,7 @@ export default async function PropertyDetailsPage({ params }: PropertyPageProps)
             </div>
 
             {/* Estimated Mortgage Payment Banner */}
-            <div className="bg-mosque/5 p-6 rounded-xl border border-mosque/10 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div className="bg-mosque/5 p-4 sm:p-6 rounded-xl border border-mosque/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-card-bg rounded-full text-mosque shadow-sm flex items-center justify-center">
                   <span className="material-icons">calculate</span>

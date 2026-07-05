@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { getDictionary, hasLocale, defaultLocale, Locale } from "./dictionaries";
@@ -8,6 +8,12 @@ import ThemeInitializer from "./components/ThemeInitializer";
 export const metadata: Metadata = {
   title: "LuxeEstate - Premium Real Estate Sanctuary",
   description: "Find your modern, premium, and minimal real estate sanctuary with LuxeEstate.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 export default async function RootLayout({
@@ -23,7 +29,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className="h-full antialiased"
+      className="h-full antialiased overflow-x-hidden w-full"
       suppressHydrationWarning
     >
       <head>
@@ -32,7 +38,7 @@ export default async function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col overflow-x-hidden w-full">
         <ThemeInitializer />
         <I18nProvider initialLocale={locale} initialDictionary={dictionary}>
           {children}

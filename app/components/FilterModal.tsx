@@ -179,8 +179,8 @@ export default function FilterModal({
       {/* Main Modal Container */}
       <main className="relative z-20 w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <header className="px-8 py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-gray-900 sticky top-0 z-30">
-          <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
+        <header className="px-4 sm:px-8 py-5 sm:py-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-white dark:bg-gray-900 sticky top-0 z-30">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">
             {t.filters.title}
           </h1>
           <button
@@ -192,7 +192,7 @@ export default function FilterModal({
         </header>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto no-scrollbar p-8 space-y-10">
+        <div className="flex-1 overflow-y-auto no-scrollbar p-4 sm:p-8 space-y-8 sm:space-y-10">
           {/* Section 1: Location */}
           <section>
             <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
@@ -232,7 +232,7 @@ export default function FilterModal({
               <div className="absolute left-[53%] w-6 h-6 bg-white border-2 border-mosque rounded-full shadow-md cursor-pointer hover:scale-110 transition-transform -ml-3 z-10"></div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="bg-[#f5f8f6] dark:bg-gray-800 p-3 rounded-lg border border-transparent focus-within:border-mosque/30 transition-colors">
                 <label className="block text-[10px] text-gray-500 uppercase font-medium mb-1">
                   {t.filters.minPrice}
@@ -273,7 +273,7 @@ export default function FilterModal({
           </section>
 
           {/* Section 3: Property Details */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {/* Property Type */}
             <div className="space-y-3">
               <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -355,7 +355,7 @@ export default function FilterModal({
             <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">
               {t.filters.amenities}
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
               {AMENITIES_OPTIONS.map((option) => {
                 const isActive = selectedAmenities.includes(option.id);
                 return (
@@ -393,7 +393,7 @@ export default function FilterModal({
         </div>
 
         {/* Footer */}
-        <footer className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 px-8 py-6 sticky bottom-0 z-30 flex items-center justify-between">
+        <footer className="bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 px-4 sm:px-8 py-4 sm:py-6 sticky bottom-0 z-30 flex items-center justify-between gap-4">
           <button
             onClick={handleClearAll}
             className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors underline decoration-gray-300 underline-offset-4 cursor-pointer"
@@ -402,7 +402,7 @@ export default function FilterModal({
           </button>
           <button
             onClick={handleApply}
-            className="bg-mosque hover:bg-mosque/90 text-white px-8 py-3 rounded-lg font-medium shadow-lg shadow-mosque/30 transition-all hover:shadow-mosque/40 flex items-center gap-2 transform active:scale-95 cursor-pointer"
+            className="bg-mosque hover:bg-mosque/90 text-white px-5 sm:px-8 py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base shadow-lg shadow-mosque/30 transition-all hover:shadow-mosque/40 flex items-center gap-2 transform active:scale-95 cursor-pointer"
           >
             {isLoadingCount ? (
               <>

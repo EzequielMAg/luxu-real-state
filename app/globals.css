@@ -51,10 +51,18 @@ body {
   font-family: var(--font-display);
 }
 
-.hide-scroll::-webkit-scrollbar {
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+.hide-scroll::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.hide-scroll {
+.hide-scroll,
+.no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }

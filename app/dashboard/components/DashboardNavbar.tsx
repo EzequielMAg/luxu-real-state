@@ -19,6 +19,7 @@ export default function DashboardNavbar({ user }: { user: User }) {
   const pathname = usePathname();
   const supabase = createClient();
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   const [mounted, setMounted] = useState(false);
@@ -92,7 +93,7 @@ export default function DashboardNavbar({ user }: { user: User }) {
             <span className="font-bold text-gray-900 dark:text-white text-sm">LuxeEstate</span>
           </Link>
 
-          <nav className="flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-8">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.label}
@@ -110,12 +111,12 @@ export default function DashboardNavbar({ user }: { user: User }) {
         </div>
 
         {/* Right side: search, bell, dark mode, language selector, vertical divider + user */}
-        <div className="flex items-center space-x-4">
-          <button className="text-gray-400 hover:text-mosque dark:hover:text-[#4db8a0] transition-colors" title="Search">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <button className="hidden sm:block text-gray-400 hover:text-mosque dark:hover:text-[#4db8a0] transition-colors" title="Search">
             <span className="material-icons text-xl">search</span>
           </button>
 
-          <button className="text-gray-400 hover:text-mosque dark:hover:text-[#4db8a0] transition-colors relative" title="Notifications">
+          <button className="hidden sm:block text-gray-400 hover:text-mosque dark:hover:text-[#4db8a0] transition-colors relative" title="Notifications">
             <span className="material-icons text-xl">notifications_none</span>
             <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-[#0a1a17]"></span>
           </button>
@@ -191,6 +192,39 @@ export default function DashboardNavbar({ user }: { user: User }) {
               </div>
             )}
           </div>
+
+          {/* Mobile Hamburger Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden text-gray-500 dark:text-white/70 hover:text-mosque dark:hover:text-[#4db8a0] transition-colors pl-1"
+            title="Menu"
+          >
+            <span className="material-icons text-2xl">{mobileMenuOpen ? "close" : "menu"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden border-t border-gray-100 dark:border-white/5 bg-white dark:bg-[#0a1a17] overflow-hidden transition-all duration-300 ${
+          mobileMenuOpen ? "max-h-60" : "max-h-0"
+        }`}
+      >
+        <div className="px-6 py-3 space-y-1">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`block px-3 py-2 rounded-xl text-base font-medium transition-all ${
+                isActive(link)
+                  ? "bg-mosque/10 dark:bg-mosque/20 text-mosque dark:text-[#4db8a0] font-semibold"
+                  : "text-gray-600 dark:text-white/70 hover:bg-gray-50 dark:hover:bg-white/5"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
         </div>
       </div>
     </header>
